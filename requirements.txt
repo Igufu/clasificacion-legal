@@ -1,3 +1,8 @@
 pandas
 google-genai
 pdfplumber
+tabulate
+pydantic
+transformers
+datasets
+torch
