@@ -17,10 +17,6 @@ STATEMENT_TYPE_VALUES = ["choice", "boundary", "aggregation", "information", "sc
 # dropped or misread as one.
 RECITATION_DELIMITER = "[[BR]]"
 
-# RECITATION-fallback schema field names (see build_anchor_response_schema).
-ANCHOR_START_FIELD = "Raw Statement Anchor Start"
-ANCHOR_END_FIELD = "Raw Statement Anchor End"
-
 # json_batches/all_examples.json (sourced from data.csv) uses a slightly
 # different header vocabulary than categories.csv, which drives the actual
 # schema (e.g. "Type of rule" vs "Statement Type"). Rename on render so the
@@ -77,9 +73,14 @@ def build_response_schema(categories_path):
         name: {"type": "STRING", "enum": STATEMENT_TYPE_VALUES} if name == "Statement Type" else {"type": "STRING"}
         for name in field_names
     }
+    # Every field is required (i.e. must be present as a key) even though most
+    # are free to be "" when inapplicable — otherwise Gemini omits fields it
+    # judges empty entirely rather than emitting an empty string, so records
+    # end up with inconsistent keys and rarely-used fields (e.g. "Or else")
+    # can silently vanish from the whole batch.
     return {
         "type": "ARRAY",
-        "items": {"type": "OBJECT", "properties": properties, "required": ["Raw Statement", "Statement Type"]},
+        "items": {"type": "OBJECT", "properties": properties, "required": field_names},
     }
 
 
@@ -100,8 +101,9 @@ def build_base_prompt(examples_path):
     <instructions>
     DISCLAIMER: The provided document is a public legal decree supplied by the user for internal structural analysis. You are explicitly authorized and required to extract verbatim phrases from this document into the JSON output to complete the classification task.
 
-    Task: You are classifying a legal document under a strict guideline. The first PDF is the document to be processed.
-    The second and third PDFs are the classification guidelines. It is IMPERATIVE to follow these rules:
+    Task: You are classifying a legal document under a strict guideline. The text to classify is given to you
+    directly, inside <document_text> tags, in the user turn below. The two attached PDFs are the classification
+    guidelines. It is IMPERATIVE to follow these rules:
 
     STATEMENT-LEVEL CLASSIFICATION:
     a. Regulativo: Prescribe, permite o prohíbe una conducta a un actor. Debe haber un actor que ejecuta una acción bajo un deóntico.
@@ -126,8 +128,8 @@ def build_base_prompt(examples_path):
 
     SECTION MARKER — ALWAYS THE FULL HIERARCHY, NEVER JUST THE SUBSECTION:
     - "Section Marker" must always be the complete path from chapter down to subsection: "CAPÍTULO <número>: <TÍTULO DEL CAPÍTULO>/<subsección>" (e.g. "CAPÍTULO VI: FUENTES ESTACIONARIAS/VI.5 Disposiciones Generales"). A Section Marker that is only the subsection ("VI.5 Disposiciones Generales") with no "CAPÍTULO ..." segment is WRONG, even if that is all that literally appears on the current page.
-    - Your assigned page range frequently starts partway through a chapter — the "CAPÍTULO N: TÍTULO" heading itself was printed on an earlier page that falls outside this batch's page range. You still have access to it: the complete source document is attached to you, not just the pages you are extracting statements from. Look back through the earlier pages of that same document to find the most recent CAPÍTULO heading before the start of your page range, and prefix every Section Marker in this batch with it. This is locating structural context, not extracting a statement from another page, so it does not violate the page-range restriction.
-    - Keep reusing that same CAPÍTULO segment for every statement and every subsection under it until you actually encounter the next "CAPÍTULO N:" heading — do not drop it partway through a batch just because a new subsection (e.g. VI.6) starts.
+    - Your assigned text frequently starts partway through a chapter — the "CAPÍTULO N: TÍTULO" heading itself appeared on an earlier page you were not given. When that happens, a "CHAPTER CONTEXT" line is provided above the <document_text> block with the most recent CAPÍTULO heading; prefix every Section Marker in this batch with it.
+    - Keep reusing that same CAPÍTULO segment for every statement and every subsection under it until you actually encounter the next "CAPÍTULO N:" heading in the text below — do not drop it partway through a batch just because a new subsection (e.g. VI.6) starts.
 
     GROUNDING (CRITICAL — do not invent content):
     - "Raw Statement" must be copied verbatim from the source document: no paraphrasing, summarizing, or silently correcting the original wording.
@@ -177,26 +179,35 @@ def build_base_prompt(examples_path):
     return base_prompt
 
 
-def build_page_range_instruction(start_page, end_page, total_pages):
-    """The per-call, page-range-specific instruction only — deliberately
-    excludes base_prompt (the static instructions/examples block), which is
-    baked into the cached system_instruction instead (see main()) so it is
-    tokenized/billed once rather than resent on every one-page call."""
+def build_document_batch_prompt(document_text, chapter_context, start_page, end_page, total_pages):
+    """The per-call instruction: embeds the already-isolated, Artículo-
+    boundary-safe text for pages start_page-end_page directly (see main()'s
+    _extend_to_article_boundary), since the model is no longer given the
+    source document as a PDF file — only the two guideline PDFs are attached
+    (and cached; see main()). chapter_context, when not None, is the most
+    recent CAPÍTULO heading found on an earlier page (see
+    _most_recent_chapter_heading), passed along so Section Marker can still
+    carry the right chapter even though the model can't see back past this
+    slice on its own."""
     prompt = f"""
-    \nExtract statements ONLY from Page {start_page} to Page {end_page}
-    of the first provided document (Document_for_processing.pdf).
-    Do not extract statements from any other pages, and do not extract
-    statements from the guideline PDFs.
-
-    BOUNDARY RULE: if a statement begins on Page {start_page} but its text
-    visibly continues onto Page {end_page + 1}, extract it here in full
-    (use Page {end_page + 1} only to complete the sentence, do not treat it
-    as a new statement). If a statement began before Page {start_page} and
-    only finishes on Page {start_page}, it was already extracted in the
-    previous batch — do not re-emit it here.
+    \nExtract statements from the text below, which is Page {start_page} to Page {end_page}
+    of Document_for_processing.pdf ({total_pages} pages total). This slice was chosen so it
+    contains only complete Artículos — it will not begin or end mid-Artículo, so do not expect
+    or wait for continuation text from adjacent pages.
+    """
+    if chapter_context:
+        prompt += f"""
+    CHAPTER CONTEXT: the most recent CAPÍTULO heading before this slice is "{chapter_context}".
+    Prefix every Section Marker in this batch with it, unless the text below itself contains a
+    newer CAPÍTULO heading — then switch to that one instead.
     """
     if end_page >= total_pages:
-        prompt += "\nThis is the final batch; it ends at the last page of the document.\n"
+        prompt += "\nThis is the final slice; it ends at the last page of the document.\n"
+    prompt += f"""
+    <document_text>
+    {document_text}
+    </document_text>
+    """
     return prompt
 
 
@@ -210,53 +221,3 @@ def strip_recitation_delimiters(statements):
             if isinstance(value, str) and RECITATION_DELIMITER in value:
                 statement[key] = pattern.sub(" ", value).strip()
     return statements
-
-
-def build_anchor_response_schema(categories_path):
-    """RECITATION-fallback variant of build_response_schema: "Raw Statement"
-    (the field whose long verbatim content trips the safety filter) is
-    replaced by two short anchor fields — the first and last ~5 words of the
-    statement — so the response never contains a long contiguous copy of the
-    source text. main.py reconstructs the full "Raw Statement" locally by
-    locating these anchors in the page's pdfplumber-extracted text."""
-    schema = build_response_schema(categories_path)
-    properties = schema["items"]["properties"]
-    del properties["Raw Statement"]
-    properties[ANCHOR_START_FIELD] = {"type": "STRING"}
-    properties[ANCHOR_END_FIELD] = {"type": "STRING"}
-    schema["items"]["required"] = [ANCHOR_START_FIELD, ANCHOR_END_FIELD, "Statement Type"]
-    return schema
-
-
-def build_anchor_batch_prompt(start_page, end_page, total_pages):
-    """Same page-range instruction as build_page_range_instruction, plus an
-    override telling the model to emit anchor fields instead of the full
-    "Raw Statement" — used only as a last-resort retry once standard
-    (delimiter-protected) extraction has exhausted its attempts for a single
-    page. Also excludes base_prompt, for the same caching reason."""
-    prompt = build_page_range_instruction(start_page, end_page, total_pages)
-    prompt += f"""
-    \nRECITATION-SAFE MODE FOR THIS REQUEST:
-    Standard extraction of this page has repeatedly triggered an automated
-    safety filter because the required output contains long verbatim spans
-    of the source text. For THIS request only, do NOT output the "Raw
-    Statement" field at all. Instead output exactly these two fields per
-    statement in its place:
-    - "{ANCHOR_START_FIELD}": the first 5 words of the statement's verbatim
-      text, copied exactly as they appear in the source (no paraphrasing).
-    - "{ANCHOR_END_FIELD}": the last 5 words of the statement's verbatim
-      text, copied exactly as they appear in the source (no paraphrasing).
-    If the statement is 10 words or shorter, the two anchors may overlap or
-    be identical — that's fine, just copy the true first and last words.
-    These anchors must be literal, unmodified source text: if the statement
-    would normally start or end with a [bracket] editorial insertion per the
-    guideline's bracket convention (e.g. "[Titulares de] fuentes..."), use
-    the nearest literal (non-bracketed) source words instead — these anchors
-    are used afterward to locate the passage in the literal source text, so
-    a bracketed insertion will not be found there.
-    Do not insert the "[[BR]]" delimiter into these anchor fields; they are
-    already short enough not to need it.
-    Every other field (Statement Type, Section Marker, Attribute, etc.) is
-    still required exactly as in standard mode.
-    """
-    return prompt

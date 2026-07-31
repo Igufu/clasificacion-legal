@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./venv/Scripts/python.exe -c ' *)",
+      "Bash(cp output/extraction_results.json output/extraction_results.pre-refill-backup.json)",
+      "Bash(python -c ' *)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 25-31)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 33-38)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 40-48)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 40-41)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 43-44)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 46-47)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 49-50)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 52-53)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 56-57)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 59-61)",
+      "Bash(./venv/Scripts/python.exe src/main.py --pages 66-69)",
+      "Bash(./venv/Scripts/python.exe src/json_to_excel.py)",
+      "Bash(./venv/Scripts/python.exe -m py_compile src/run_all.py)",
+      "Bash(./venv/Scripts/python.exe src/run_all.py --help)"
+    ]
+  }
+}

@@ -7,33 +7,12 @@ from openpyxl.styles import Alignment, Font, PatternFill
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output"
 INPUT_FILE = OUTPUT_DIR / "extraction_results.json"
 OUTPUT_FILE = OUTPUT_DIR / "extraction_results.xlsx"
+CATEGORIES_PATH = Path(__file__).resolve().parent / "data" / "categories.csv"
 SHEET_NAME = "Statements"
 
-# Preferred column order (IG framework grouping). Any unexpected keys are
-# appended at the end so nothing is silently dropped.
-COLUMN_ORDER = [
-    "Section Marker",
-    "Statement No.",
-    "Raw Statement",
-    "Statement Type",
-    "Attribute",
-    "Attribute Property",
-    "Deontic",
-    "Aim",
-    "Direct Object (Content)",
-    "Direct Object Property",
-    "Indirect Object (Content)",
-    "Activation Condition (Content)",
-    "Execution Constraint (Content)",
-    "Constituted Entity",
-    "Constituting Function",
-    "Constituted Properties",
-    "Function",
-    "Logical combination",
-    "Invoking statement(s)",
-]
-
-# Per-column widths (chars). Long free-text fields get more room.
+# Per-column widths (chars). Long free-text fields get more room. Anything
+# without an explicit entry (including any never-anticipated extra key found
+# in the data) falls back to DEFAULT_WIDTH.
 COLUMN_WIDTHS = {
     "Section Marker": 32,
     "Statement No.": 8,
@@ -44,16 +23,24 @@ COLUMN_WIDTHS = {
     "Deontic": 12,
     "Aim": 16,
     "Direct Object (Content)": 32,
+    "Direct Object (Reference to statement)": 16,
     "Direct Object Property": 40,
     "Indirect Object (Content)": 32,
+    "Indirect Object (Reference to statement)": 16,
+    "Indirect Object Property": 40,
     "Activation Condition (Content)": 50,
+    "Activation Condition (Reference to statement)": 16,
     "Execution Constraint (Content)": 40,
-    "Constituted Entity": 32,
-    "Constituting Function": 24,
-    "Constituted Properties": 50,
-    "Function": 20,
+    "Execution Constraint (Reference to statement)": 16,
+    "Or else": 40,
+    "Or else (Forward reference)": 16,
     "Logical combination": 18,
     "Invoking statement(s)": 14,
+    "Constituted Entity": 32,
+    "Constituted Entity Property": 40,
+    "Constituting Function": 24,
+    "Constituted Properties": 50,
+    "Constituted Properties Property": 40,
 }
 DEFAULT_WIDTH = 25
 
@@ -63,17 +50,38 @@ def load_records(path: Path) -> list[dict]:
         return json.load(f)
 
 
-def order_columns(records: list[dict]) -> list[str]:
+def load_canonical_fields(path: Path) -> list[str]:
+    """Column order sourced straight from categories.csv — the same file
+    prompt_builder.build_response_schema() reads to build the model's output
+    schema — so the two can never drift apart the way the old hand-maintained
+    COLUMN_ORDER list did. Row order is preserved; a name repeated across the
+    regulative/constitutive sections of the CSV (e.g. "Deontic") collapses to
+    its first occurrence, same dedup rule build_response_schema uses."""
+    df = pd.read_csv(path)
+    df.columns = ["Coding Fields", "Description"]
+    fields = []
+    for name in df["Coding Fields"]:
+        name = str(name).strip()
+        if name and name not in fields:
+            fields.append(name)
+    return fields
+
+
+def order_columns(records: list[dict], canonical_fields: list[str]) -> list[str]:
+    """Every canonical Coding Field gets a column even if no record in this
+    particular run happened to populate it, so the sheet always shows the
+    full coding framework. Truly unexpected keys (not in categories.csv) are
+    appended at the end so nothing is silently dropped."""
     seen = {k for r in records for k in r.keys()}
-    ordered = [c for c in COLUMN_ORDER if c in seen]
-    extras = sorted(seen - set(ordered))
-    return ordered + extras
+    extras = sorted(seen - set(canonical_fields))
+    return canonical_fields + extras
 
 
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     records = load_records(INPUT_FILE)
-    columns = order_columns(records)
+    canonical_fields = load_canonical_fields(CATEGORIES_PATH)
+    columns = order_columns(records, canonical_fields)
     df = pd.DataFrame(records).reindex(columns=columns)
 
     with pd.ExcelWriter(OUTPUT_FILE, engine="openpyxl") as writer:
