@@ -1,17 +1,19 @@
 import json
+from pathlib import Path
 import pandas as pd
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font, PatternFill
 
-INPUT_FILE = "extraction_results.json"
-OUTPUT_FILE = "extraction_results.xlsx"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output"
+INPUT_FILE = OUTPUT_DIR / "extraction_results.json"
+OUTPUT_FILE = OUTPUT_DIR / "extraction_results.xlsx"
 SHEET_NAME = "Statements"
 
 # Preferred column order (IG framework grouping). Any unexpected keys are
 # appended at the end so nothing is silently dropped.
 COLUMN_ORDER = [
     "Section Marker",
-    "Statement No.:",
+    "Statement No.",
     "Raw Statement",
     "Statement Type",
     "Attribute",
@@ -34,7 +36,7 @@ COLUMN_ORDER = [
 # Per-column widths (chars). Long free-text fields get more room.
 COLUMN_WIDTHS = {
     "Section Marker": 32,
-    "Statement No.:": 8,
+    "Statement No.": 8,
     "Raw Statement": 70,
     "Statement Type": 14,
     "Attribute": 28,
@@ -56,7 +58,7 @@ COLUMN_WIDTHS = {
 DEFAULT_WIDTH = 25
 
 
-def load_records(path: str) -> list[dict]:
+def load_records(path: Path) -> list[dict]:
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
@@ -69,6 +71,7 @@ def order_columns(records: list[dict]) -> list[str]:
 
 
 def main() -> None:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     records = load_records(INPUT_FILE)
     columns = order_columns(records)
     df = pd.DataFrame(records).reindex(columns=columns)

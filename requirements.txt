@@ -7,3 +7,4 @@ pydantic
 transformers
 datasets
 torch
+dotenv
