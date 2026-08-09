@@ -17,7 +17,10 @@
       "Bash(./venv/Scripts/python.exe src/main.py --pages 66-69)",
       "Bash(./venv/Scripts/python.exe src/json_to_excel.py)",
       "Bash(./venv/Scripts/python.exe -m py_compile src/run_all.py)",
-      "Bash(./venv/Scripts/python.exe src/run_all.py --help)"
+      "Bash(./venv/Scripts/python.exe src/run_all.py --help)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('original_extracts.json', encoding='utf-8'\\)\\); print\\(len\\(d\\)\\); print\\(list\\(d[0].keys\\(\\)\\)\\)\")",
+      "Bash(python extractor.py)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('original_extracts.json', encoding='utf-8'\\)\\); print\\(len\\(d\\)\\); print\\(d[0]\\); print\\(d[1]\\)\")"
     ]
   }
 }
