@@ -20,7 +20,13 @@
       "Bash(./venv/Scripts/python.exe src/run_all.py --help)",
       "Bash(python -c \"import json; d=json.load\\(open\\('original_extracts.json', encoding='utf-8'\\)\\); print\\(len\\(d\\)\\); print\\(list\\(d[0].keys\\(\\)\\)\\)\")",
       "Bash(python extractor.py)",
-      "Bash(python -c \"import json; d=json.load\\(open\\('original_extracts.json', encoding='utf-8'\\)\\); print\\(len\\(d\\)\\); print\\(d[0]\\); print\\(d[1]\\)\")"
+      "Bash(python -c \"import json; d=json.load\\(open\\('original_extracts.json', encoding='utf-8'\\)\\); print\\(len\\(d\\)\\); print\\(d[0]\\); print\\(d[1]\\)\")",
+      "Bash(./venv/Scripts/python.exe extractor/utils/extract_statements.py)",
+      "Bash(./venv/Scripts/python.exe scratch_probe.py)",
+      "Bash(python extractor/utils/extract_statements.py)",
+      "Bash(python -m pip install -r requirements.txt)",
+      "Bash(python -m ensurepip --upgrade)",
+      "Bash(python extract_statements.py)"
     ]
   }
 }
