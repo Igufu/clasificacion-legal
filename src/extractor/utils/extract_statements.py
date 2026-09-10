@@ -1,10 +1,3 @@
-"""Mechanical pre-segmentation of the PDA decree into chapter/article/sub-item
-chunks -- the "clearly scoped units" that manual coding or an LLM's
-fine-grained statement decomposition (Gramática Institucional 2.0) then
-works on. See extractor/data/original_extracts.json for the target grain
-(365 hand-coded institutional statements) and the coding notes for why only
-Capítulo III onward is in scope."""
-
 import json
 import re
 import sys
@@ -197,3 +190,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#A
