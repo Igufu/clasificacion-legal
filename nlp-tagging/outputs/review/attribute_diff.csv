@@ -1,0 +1,235 @@
+T_id,start,end,literal_text,excel_attribute,is_implicit,match_source
+T1,59363,59368,buses,[Titulares de] Buses,True,local
+T2,61287,61292,buses,[Titulares de] Buses,True,local
+T3,61287,61292,buses,[Titulares de Buses],True,cross_reference
+T4,62260,62386,"El Ministerio de Transportes y Telecomunicaciones, en conjunto con el Ministerio del Medio Ambiente y el Ministerio de Energía","El Ministerio de Transportes y Telecomunicaciones, en conjunto con el Ministerio del Medio Ambiente y el Ministerio de Energía",False,local
+T5,62848,62894,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T6,63001,63240,"el Ministerio de Transportes y Telecomunicaciones, a través del Programa de Vialidad y Transporte Urbano de la Secretaría de Planificación de Transporte (SECTRA), en colaboración con el Directorio de Transporte Público Metropolitano (DTPM)","el Ministerio de Transportes y Telecomunicaciones, a través del Programa de Vialidad y Transporte Urbano de la Secretaría de Planificación de Transporte (SECTRA), en colaboración con el Directorio de Transporte Público Metropolitano (DTPM)",False,local
+T7,63796,63893,El Ministerio de Transportes y Telecomunicaciones en conjunto con el Ministerio del Medio Ambient,El Ministerio de Transportes y Telecomunicaciones en conjunto con el Ministerio del Medio Ambient,False,local
+T8,64435,64481,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T9,64435,64481,Ministerio de Transportes y Telecomunicaciones,[Ministerio de Transportes y Telecomunicaciones],False,cross_reference
+T10,65720,65967,"El Ministerio de Energía, en conjunto con el Ministerio de Transportes y Telecomunicaciones y el Ministerio del Medio Ambiente, en un plazo de 12 meses desde la entrada en vigencia del presente Decreto, promoverán el establecimiento de un marco no","El Ministerio de Energía, en conjunto con el Ministerio de Transportes y Telecomunicaciones y el Ministerio del Medio Ambiente, en un plazo de 12 meses desde la entrada en vigencia del presente Decreto, promoverán el establecimiento de un marco no",False,local
+T11,66197,66219,Ministerio de Hacienda,Ministerio de Hacienda,False,local
+T12,66600,66646,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T13,67154,67250,"vehículo comercial, transporte de carga y transporte de pasajeros, incluyendo furgones escolares","[Titulares de] vehículo comercial, transporte de carga y transporte de pasajeros, incluyendo furgones escolares",True,local
+T14,67570,67628,Carabineros de Chile e inspectores fiscales y municipales ,Carabineros de Chile e inspectores fiscales y municipales,False,local
+T15,67570,67627,Carabineros de Chile e inspectores fiscales y municipales,[Carabineros de Chile e inspectores fiscales y municipales],False,cross_reference
+T16,67925,67983,vehículos motorizados de encendido por chispa (ciclo Otto),[Titulares de] vehículos motorizados de encendido por chispa (ciclo Otto),True,local
+T17,68077,68099,vehículos motor diésel,[Titulares de] vehículos motor diésel,True,local
+T18,68306,68363,Carabineros de Chile e inspectores fiscales y municipales,Carabineros de Chile e inspectores fiscales y municipales,False,local
+T19,68306,68363,Carabineros de Chile e inspectores fiscales y municipales,[Carabineros de Chile e inspectores fiscales y municipales],False,cross_reference
+T20,68575,68672,el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones,el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones,False,local
+T21,68575,68672,el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones,[el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones],False,cross_reference
+T22,69580,69664,el Ministerio del Medio Ambiente y el Ministerio de Transportes y Telecomunicaciones,el Ministerio del Medio Ambiente y el Ministerio de Transportes y Telecomunicaciones,False,local
+T23,70017,70058,vehículos motorizados livianos y medianos,[Titulares de] vehículos motorizados livianos y medianos,True,local
+T24,70365,70460,"el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud","el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud",False,local
+T25,70365,70460,"el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud","[el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud]",False,cross_reference
+T26,70365,70460,"el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud","[el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud]",False,cross_reference
+T27,71599,71629,maquinaria móvil fuera de ruta,[Titulares de] maquinaria móvil fuera de ruta,True,local
+T28,73427,73462,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T29,75019,75027,gasolina,[Distribuidores/expendedores de] gasolina,True,local
+T30,75220,75228,gasolina,[Distribuidores/expendedores de] gasolina,True,local
+T31,75772,75872,"la Superintendencia de Electricidad y Combustibles, previa consulta al Ministerio del Medio Ambiente","la Superintendencia de Electricidad y Combustibles, previa consulta al Ministerio del Medio Ambiente",False,local
+T32,78587,78635,Superintendencia de Electricidad y Combustibles ,Superintendencia de Electricidad y Combustibles,False,local
+T33,79394,79415,Ministerio de Energía,Ministerio de Energía,False,local
+T34,79394,79415,Ministerio de Energía,[Ministerio de Energía],False,cross_reference
+T35,79394,79415,Ministerio de Energía,[Ministerio de Energía],False,cross_reference
+T36,81279,81308,instalaciones de distribución,[Titulares de] instalaciones de distribución,True,local
+T37,81497,81547,equipos de recuperación y/o eliminación de vapores,[Titulares de] equipos de recuperación y/o eliminación de vapores,True,local
+T38,81497,81547,equipos de recuperación y/o eliminación de vapores,[Titulares de] equipos de recuperación y/o eliminación de vapores,True,cross_reference
+T39,81903,81924,Ministerio de Energía,Ministerio de Energía,False,local
+T40,82029,82072,tanques que almacenen combustibles líquidos,[Titulares de tanques que almacenen combustibles líquidos],True,cross_reference
+T41,82519,82554,sistemas de recuperación de vapores,[Titulares de] sistemas de recuperación de vapores,True,local
+T42,82714,82730,camiones tanques,[Titulares de] camiones tanques,True,local
+T43,83951,83999,Superintendencia de Electricidad y Combustibles ,Superintendencia de Electricidad y Combustibles,False,local
+T44,84368,84416,Superintendencia de Electricidad y Combustibles ,Superintendencia de Electricidad y Combustibles,False,local
+T45,84368,84415,Superintendencia de Electricidad y Combustibles,[Superintendencia de Electricidad y Combustibles],False,cross_reference
+T46,84957,85005,Superintendencia de Electricidad y Combustibles ,Superintendencia de Electricidad y Combustibles,False,local
+T47,84957,85004,Superintendencia de Electricidad y Combustibles,[Superintendencia de Electricidad y Combustibles],False,cross_reference
+T48,85648,85664,hornos panaderos,[Titulares de] hornos panaderos,True,local
+T49,85767,85775,calderas,[Titulares de] calderas,True,local
+T50,85940,85948,calderas,[Titulares de] calderas,True,local
+T51,86368,86376,calderas,[Titulares de] calderas,True,local
+T52,86368,86376,calderas,[Titulares de] calderas,True,cross_reference
+T53,86368,86376,calderas,Titulares de [calderas],True,cross_reference
+T54,87205,87240,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T55,87802,87810,calderas,[Titulares de] calderas,True,local
+T56,88061,88082,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,local
+T57,88061,88082,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T58,88457,88478,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,local
+T59,88457,88478,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T60,88928,88963,Superintendencia del Medio Ambiente,[Superintendencia del Medio Ambiente],False,cross_reference
+T61,89944,89965,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T62,88457,88478,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T63,90554,90575,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T64,90978,91013,Superintendencia del Medio Ambiente,[Superintendencia del Medio Ambiente],False,cross_reference
+T65,90554,90575,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T66,91589,91597,calderas,[Titulares de] calderas,True,local
+T67,92378,92408,fuentes estacionarias emisoras,[Titulares de] fuentes estacionarias emisoras,True,local
+T68,92378,92399,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T69,92810,92822,las calderas,[Titulares de] las calderas,True,local
+T70,92810,92822,las calderas,[Titulares de] las calderas,True,local
+T71,93100,93136,Superintendencia del Medio Ambiente ,Superintendencia del Medio Ambiente,False,local
+T72,93100,93135,Superintendencia del Medio Ambiente,[Superintendencia del Medio Ambiente],False,cross_reference
+T73,93418,93437,SEREMI de Salud RM ,SEREMI de Salud RM,False,local
+T74,93711,93745,titulares de fuentes estacionarias,Titulares de fuentes estacionarias,False,local
+T75,93724,93745,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T76,93724,93745,fuentes estacionarias,[Titulares de] fuentes estacionarias,True,cross_reference
+T77,95408,95442,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,local
+T78,95408,95442,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,cross_reference
+T79,96202,96237,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T80,96363,96387,titulares de las fuentes,titulares de las fuentes [estacionarias],True,local
+T81,96639,96646,fuentes,[Titulares de] fuentes [estacionarias],True,local
+T82,96820,96827,fuentes,[Titulares de] fuentes [estacionarias],True,local
+T83,96953,96987,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,local
+T84,97342,97377,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T85,96953,96987,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,cross_reference
+T86,96953,96987,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,cross_reference
+T87,96953,96987,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,cross_reference
+T88,98345,98361,Superintendencia,Superintendencia [del Medio Ambiente],True,local
+T89,96953,96987,calderas y procesos con combustión,[Titulares de] calderas y procesos con combustión,True,cross_reference
+T90,99362,99386,grandes establecimientos,[Titulares de] grandes establecimientos,True,cross_reference
+T91,99362,99386,grandes establecimientos,[Titulares de] grandes establecimientos,True,cross_reference
+T92,99362,99386,grandes establecimientos,[Titulares de] grandes establecimientos,True,cross_reference
+T93,100699,100728,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T94,100699,100728,Ministerio del Medio Ambiente,[Ministerio del Medio Ambiente],False,cross_reference
+T95,102902,102926,grandes establecimientos,[Titulares de] grandes establecimientos,True,local
+T96,103151,103180,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T97,103317,103346,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T98,103550,103587,titulares de grandes establecimientos,Titulares de grandes establecimientos,False,local
+T99,103662,103687,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T100,103662,103687,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T101,103662,103687,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T102,103662,103687,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T103,105276,105311,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T104,105276,105311,Superintendencia del Medio Ambiente,[Superintendencia del Medio Ambiente],False,cross_reference
+T105,105625,105660,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T106,106156,106182,SEREMI del Medio Ambiente ,SEREMI del Medio Ambiente,False,local
+T107,106204,106239,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T108,109941,110025,establecimientos que no pertenecen al listado de grandes establecimientos existentes,[Titulares de] establecimientos que no pertenecen al listado de grandes establecimientos existentes,True,local
+T109,110307,110332,Seremi del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T110,114767,114792,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T111,110165,110189,grandes establecimientos,[Titulares de] grandes establecimientos,True,cross_reference
+T112,116449,116505,titulares de establecimientos industriales o comerciales,Titulares de establecimientos industriales o comerciales,False,local
+T113,117052,117081,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T114,120614,120646,titulares de grupos electrógenos,Titulares de grupos electrógenos,False,local
+T115,121105,121140,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T116,120614,120646,titulares de grupos electrógenos,[Titulares de grupos electrógenos],False,cross_reference
+T117,121390,121409,grupos electrógenos,[Titulares de] grupos electrógenos,True,cross_reference
+T118,123020,123041,planteles de porcinos,[Titulares de] planteles de porcinos,True,local
+T119,123863,123898,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T120,123020,123041,planteles de porcinos,[Titulares de] planteles de porcinos,True,cross_reference
+T121,124901,124928,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,local
+T122,125174,125201,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,local
+T123,125174,125201,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,cross_reference
+T124,125174,125201,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,cross_reference
+T125,125747,125774,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,local
+T126,125747,125774,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,cross_reference
+T127,125747,125774,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,cross_reference
+T128,126283,126310,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,local
+T129,126283,126310,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,cross_reference
+T130,126283,126310,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,cross_reference
+T131,126738,126765,planteles de aves de corral,[Titulares de] planteles de aves de corral,True,local
+T132,127008,127037,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T133,129157,129197,Secretaría Regional Ministerial de Salud,Secretaría Regional Ministerial de Salud,False,local
+T134,129345,129357,calefactores,[Usuarios de] calefactores,True,local
+T135,129513,129553,Secretaría Regional Ministerial de Salud,Secretaría Regional Ministerial de Salud,False,local
+T136,129664,129693,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T137,130452,130470,SEREMI de Salud RM,SEREMI de Salud RM,False,local
+T138,130980,131014,hoteles u otra clase de hospedajes,[Titulares de] hoteles u otra clase de hospedajes,True,local
+T139,131064,131076,calefactores,[Usuarios de] calefactores,True,local
+T140,131254,131266,calefactores,[Usuarios de] calefactores,True,local
+T141,131432,131450,SEREMI de Salud RM,SEREMI de Salud RM,False,local
+T142,131645,131657,calefactores,[Usuarios de] calefactores,True,local
+T143,131715,131733,SEREMI de Salud RM,SEREMI de Salud RM,False,local
+T144,131844,131869,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T145,132155,132180,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T146,132549,132579,Ministerio del Medio Ambiente ,Ministerio del Medio Ambiente,False,local
+T147,132155,132180,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T148,133914,133926,calefactores,[Comercializadores de] calefactores,True,local
+T149,134290,134337,Superintendencia de Electricidad y Combustibles,Superintendencia de Electricidad y Combustibles,False,local
+T150,134468,134497,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T151,134825,134872,Superintendencia de Electricidad y Combustibles,Superintendencia de Electricidad y Combustibles,False,local
+T152,135190,135219,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T153,135568,135572,leña,[Comercializadores de] leña,True,local
+T154,135896,135921,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T155,136234,136254,comerciantes de leña,Comerciantes de leña,False,local
+T156,136607,136627,comerciantes de leña,Comerciantes de leña,False,local
+T157,137009,137043,Ministerio de Vivienda y Urbanismo,Ministerio de Vivienda y Urbanismo,False,local
+T158,137323,137357,Ministerio de Vivienda y Urbanismo,Ministerio de Vivienda y Urbanismo,False,local
+T159,137323,137357,Ministerio de Vivienda y Urbanismo,[Ministerio de Vivienda y Urbanismo],False,cross_reference
+T160,137323,137357,Ministerio de Vivienda y Urbanismo,[Ministerio de Vivienda y Urbanismo],False,cross_reference
+T161,137929,137959,Ministerio del Medio Ambiente ,Ministerio del Medio Ambiente,False,local
+T162,138188,138223,Servicio de Vivienda y Urbanización,Servicio de Vivienda y Urbanización,False,local
+T163,138552,138582,Ministerio del Medio Ambiente ,Ministerio del Medio Ambiente,False,local
+T164,138830,138902,el Ministerio del Medio Ambiente con el apoyo de la SEREMI de Energía RM,el Ministerio del Medio Ambiente con el apoyo de la SEREMI de Energía RM,False,local
+T165,139339,139373,Ministerio de Vivienda y Urbanismo,Ministerio de Vivienda y Urbanismo,False,local
+T166,139574,139700,el Ministerio del Medio Ambiente en conjunto con el Ministerio de Energía y la Superintendencia de Electricidad y Combustibles,el Ministerio del Medio Ambiente en conjunto con el Ministerio de Energía y la Superintendencia de Electricidad y Combustibles,False,local
+T167,140481,140554,el Ministerio del Medio Ambiente en conjunto con el Ministerio de Energía,el Ministerio del Medio Ambiente en conjunto con el Ministerio de Energía,False,local
+T168,142238,142273,el SAG en coordinación con la CONAF,el SAG en coordinación con la CONAF,False,local
+T169,142577,142602,Ministerio de Agricultura,Ministerio de Agricultura,False,local
+T170,142577,142602,Ministerio de Agricultura,[Ministerio de Agricultura],False,cross_reference
+T171,143418,143461,Gobierno Regional Metropolitano de Santiago,Gobierno Regional Metropolitano de Santiago,False,local
+T172,143418,143461,Gobierno Regional Metropolitano de Santiago,[Gobierno Regional Metropolitano de Santiago],False,cross_reference
+T173,143418,143461,Gobierno Regional Metropolitano de Santiago,[Gobierno Regional Metropolitano de Santiago],False,cross_reference
+T174,145476,145501,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T175,145827,145932," el Gobierno Regional Metropolitano de Santiago, en coordinación con la SEREMI de Vivienda y Urbanismo RM","el Gobierno Regional Metropolitano de Santiago, en coordinación con la SEREMI de Vivienda y Urbanismo RM",False,local
+T176,146243,146286,Gobierno Regional Metropolitano de Santiago,Gobierno Regional Metropolitano de Santiago,False,local
+T177,146495,146538,Gobierno Regional Metropolitano de Santiago,Gobierno Regional Metropolitano de Santiago,False,local
+T178,147554,147705,"el Ministerio de Vivienda y Urbanismo, el Ministerio de Obras Públicas y las demás instituciones con atribuciones en la construcción de infraestructura","el Ministerio de Vivienda y Urbanismo, el Ministerio de Obras Públicas y las demás instituciones con atribuciones en la construcción de infraestructura",False,local
+T179,148437,148483,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T180,148879,148925,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T181,149107,149190,El Ministerio del Medio Ambiente y el Ministerio de Transportes y Telecomunicacione,El Ministerio del Medio Ambiente y el Ministerio de Transportes y Telecomunicacione,False,local
+T182,149513,149542,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T183,149885,149931,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T184,150252,150370,"el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes","el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes",False,local
+T185,150252,150370,"el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes","[el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes]",False,cross_reference
+T186,150693,150763,la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM,la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM,False,local
+T187,150693,150763,la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM,[la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM],False,cross_reference
+T188,150693,150763,la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM,[la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM],False,cross_reference
+T189,151655,151680,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T190,151655,151680,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T191,151655,151680,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T192,151655,151680,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T193,152928,152953,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T194,152928,152953,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T195,152928,152953,SEREMI del Medio Ambiente,[SEREMI del Medio Ambiente],False,cross_reference
+T196,153680,153705,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T197,153865,153886,Ministerio de Energía,Ministerio de Energía,False,local
+T198,154311,154340,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T199,156649,156805,"Superintendencia del Medio Ambiente y la colaboración del Intendente, la SEREMI del Medio Ambiente y los órganos de la Administración del Estado competentes","Superintendencia del Medio Ambiente y la colaboración del Intendente, la SEREMI del Medio Ambiente y los órganos de la Administración del Estado competentes",False,local
+T200,157050,157071,servicios competentes,Servicios competentes,False,local
+T201,157335,157443,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM",False,local
+T202,157335,157443,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","[Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM]",False,cross_reference
+T203,157335,157443,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","[Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM]",False,cross_reference
+T204,157335,157443,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","[Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM]",False,cross_reference
+T205,158889,159000,"El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM",False,local
+T206,159604,159650,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T207,159958,159967,viviendas,[Titulares de] viviendas,True,local
+T208,160942,161053,"El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM",False,local
+T209,161339,161370,calefactores de uso residencial,[Titulares de] calefactores de uso residencial,True,local
+T210,161629,161647,SEREMI de Salud RM,SEREMI de Salud RM,False,local
+T211,161744,161766,SEREMI de Educación RM,SEREMI de Educación RM,False,local
+T212,162023,162045,SEREMI de Educación RM,SEREMI de Educación RM,False,local
+T213,162368,162424,Gobierno Regional de la Región Metropolitana de Santiago,Gobierno Regional de la Región Metropolitana de Santiago,False,local
+T214,163016,163062,Ministerio de Transportes y Telecomunicaciones,Ministerio de Transportes y Telecomunicaciones,False,local
+T215,163234,163345,"El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM",False,local
+T216,164360,164391,calefactores de uso residencial,[Titulares de] calefactores de uso residencial,True,local
+T217,164626,164644,SEREMI de Salud RM,SEREMI de Salud RM,False,local
+T218,164741,164763,SEREMI de Educación RM,SEREMI de Educación RM,False,local
+T219,165020,165042,SEREMI de Educación RM,SEREMI de Educación RM,False,local
+T220,165365,165421,Gobierno Regional de la Región Metropolitana de Santiago,Gobierno Regional de la Región Metropolitana de Santiago,False,local
+T221,166339,166450,"El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM","El Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM",False,local
+T222,167467,167498,calefactores de uso residencial,[Titulares de] calefactores de uso residencial,True,local
+T223,168149,168171,SEREMI de Educación RM,SEREMI de Educación RM,False,local
+T224,168958,168983,SEREMI del Medio Ambiente,SEREMI del Medio Ambiente,False,local
+T225,169266,169277,Intendente ,Intendente,False,local
+T226,169853,169864,Intendente ,Intendente,False,local
+T227,170277,170288,Intendente ,Intendente,False,local
+T228,170668,170679,Intendente ,Intendente,False,local
+T229,171089,171124,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T230,171243,171278,Superintendencia del Medio Ambiente,Superintendencia del Medio Ambiente,False,local
+T231,171406,171424,servicios públicos,Servicios públicos,False,local
+T232,171793,171822,Ministerio del Medio Ambiente,Ministerio del Medio Ambiente,False,local
+T233,171937,171955,servicios públicos,Servicios públicos,False,local
+T234,184033,184135,El Ministerio del Medio Ambiente en coordinación con el Ministerio de Transportes y Telecomunicaciones,El Ministerio del Medio Ambiente en coordinación con el Ministerio de Transportes y Telecomunicaciones,False,local
