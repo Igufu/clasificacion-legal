@@ -33,6 +33,7 @@ from matching import (
 )
 from paths import (
     DOC_ANN_PATH,
+    DOC_DEONTIC_LABEL_ANN_PATH,
     STATEMENTS_JSON_PATH,
     UNMATCHED_CSV_PATH,
     UNMATCHED_DEONTIC_CSV_PATH,
@@ -158,6 +159,26 @@ def write_annotations(attribute_annotations, deontic_annotations, path):
             tid += 1
 
 
+def write_deontic_label_annotations(attribute_annotations, deontic_annotations, path):
+    """Like `write_annotations`, but each Deontic line's text is the Excel
+    "Deontic" cell value itself (e.g. "deberán", "[deberá]", "no [podrán]")
+    rather than the matched surface phrase — still tagged plain "Deontic".
+
+    Brackets are kept exactly as written in the Excel column to mark
+    implicit modality; only surrounding/internal whitespace is normalized.
+    """
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        tid = 1
+        for ann in attribute_annotations:
+            f.write(f"T{tid}\tAttribute {ann['start']} {ann['end']}\t{ann['text']}\n")
+            tid += 1
+        for ann in deontic_annotations:
+            label, _ = normalize_with_map(ann.get("deontic") or "")
+            text = label or ann["text"]
+            f.write(f"T{tid}\tDeontic {ann['start']} {ann['end']}\t{text}\n")
+            tid += 1
+
+
 def write_unmatched(rows, path, extra_field=None):
     """Write unmatched rows to CSV. `extra_field` names the value column (else 'attribute')."""
     value_field = extra_field or "attribute"
@@ -185,6 +206,9 @@ def main():
 
     ensure_outputs_dir()
     write_annotations(attribute_annotations, deontic_annotations, DOC_ANN_PATH)
+    write_deontic_label_annotations(
+        attribute_annotations, deontic_annotations, DOC_DEONTIC_LABEL_ANN_PATH
+    )
     write_unmatched(unmatched_attributes, UNMATCHED_CSV_PATH)
     write_unmatched(unmatched_statements, UNMATCHED_STATEMENTS_CSV_PATH)
     write_unmatched(

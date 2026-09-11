@@ -7,22 +7,14 @@ phrase is the modal itself ("deberán", "podrán"), sometimes a future-tense
 verb that stands in for an implied "[deberá]" ("generará", "iniciará"), and
 sometimes a paraphrase ("prohíbe la operación", "será fiscalizada").
 
-The Excel's "Deontic" column supplies the canonical modality for each row,
-which is what the brat annotation *type* is derived from — the surface
-phrase alone is ambiguous ("diseñará" isn't literally a modal, but the
-row's canonical value tells us it stands in for "[deberá]"). Brackets in
-the canonical value flag implicit modality and are stripped from the
-token but retained as an "_implicit" suffix on the type.
-
-Examples of the type produced:
-    "deberán"        -> "Deontic_deberán"
-    "[deberá]"       -> "Deontic_deberá_implicit"
-    "solo podrán"    -> "Deontic_solo_podrán"
-    "no [podrán]"    -> "Deontic_no_podrán_implicit"
+Every such phrase is tagged with the same brat type, "Deontic"; the
+Excel's canonical "Deontic" column value (e.g. "deberán", "[podrá]") is
+kept as the annotation's `deontic` field rather than folded into the type
+name.
 
 Given a document.txt statement span already located by `tag_attribute.py`,
 we search for the bold surface inside the span and emit one annotation per
-hit, tagged with the derived type.
+hit.
 """
 
 from matching import (
@@ -32,40 +24,17 @@ from matching import (
     reject_multiline,
 )
 
-DEONTIC_TYPE_PREFIX = "Deontic"
-FALLBACK_DEONTIC_TYPE = DEONTIC_TYPE_PREFIX
-
-
-def canonicalize_deontic(value):
-    """Convert an Excel "Deontic" cell value into (token, is_implicit).
-
-    - Whitespace is stripped and internal runs collapsed.
-    - `[` / `]` anywhere in the value marks the whole modality as implicit
-      (row 24's "[no deben]" and row 28's "no [podrán]" both count).
-    - Brackets are removed from the token; internal spaces become "_" so
-      the token is safe to embed in a brat type name.
-
-    Returns (None, False) if the value is blank/absent.
-    """
-    if value is None:
-        return None, False
-    text = str(value).strip()
-    if not text:
-        return None, False
-    is_implicit = "[" in text or "]" in text
-    cleaned = text.replace("[", "").replace("]", "")
-    cleaned = " ".join(cleaned.split())
-    if not cleaned:
-        return None, is_implicit
-    return cleaned.replace(" ", "_"), is_implicit
+DEONTIC_TYPE = "Deontic"
 
 
 def deontic_type_for(value):
-    """Return the brat type name for a given Excel Deontic value."""
-    token, is_implicit = canonicalize_deontic(value)
-    if token is None:
-        return FALLBACK_DEONTIC_TYPE
-    return f"{DEONTIC_TYPE_PREFIX}_{token}_implicit" if is_implicit else f"{DEONTIC_TYPE_PREFIX}_{token}"
+    """Return the brat type name for a given Excel Deontic value.
+
+    The brat *type* is always the plain "Deontic" label; the modal token
+    itself (e.g. "deberán", "[podrán]") is recorded separately as the
+    annotation's `deontic` field, not baked into the type name.
+    """
+    return DEONTIC_TYPE
 
 
 def match_deontic(statement_text, deontic_surface):
