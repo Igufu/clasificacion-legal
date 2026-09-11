@@ -1,0 +1,3 @@
+to run:
+source venv/bin/activate
+(cd nlp-tagging/src && python excel_to_json.py && python tag_attribute.py)
