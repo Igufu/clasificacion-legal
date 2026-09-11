@@ -22,11 +22,13 @@ Pipeline:
 import bisect
 import csv
 import json
+import re
 
 from document_extractor import get_document_text
 from matching import (
     BRACKET_RE,
     find_exact,
+    find_last_occurrence_before,
     find_whitespace_insensitive,
     normalize_with_map,
     reject_multiline,
@@ -91,6 +93,83 @@ def match_attribute(statement_text, attribute):
         if result:
             return result
 
+    # Case-insensitive fallback: Excel normalizes actor names to a canonical
+    # capitalization (e.g. "Buses") that may appear lower-cased in the source
+    # ("los buses...").
+    result = reject_multiline(
+        find_whitespace_insensitive(statement_text, attribute, ignore_case=True)
+    )
+    if result:
+        return result
+
+    if stripped:
+        result = reject_multiline(
+            find_whitespace_insensitive(statement_text, stripped, ignore_case=True)
+        )
+        if result:
+            return result
+
+    return None
+
+
+BRACKET_CONTENT_RE = re.compile(r"\[([^\]]*)\]")
+_ROLE_WORD = r"(?:titular(?:es)?|usuario(?:s)?)"
+ROLE_PREFIX_RE = re.compile(rf"^\s*{_ROLE_WORD}\s+(?:de|del)\s+", re.IGNORECASE)
+GENERIC_ROLE_ONLY_RE = re.compile(rf"^\s*{_ROLE_WORD}\s*(?:de|del)?\s*$", re.IGNORECASE)
+LOGICAL_MARKERS = {"and", "or"}
+
+
+def _is_generic_role_only(text):
+    """True for bare role words like "Titulares de" or "Usuarios" with no
+    object attached -- too generic to search for on their own (the phrase
+    recurs throughout the document, so a backward search would confidently
+    land on an unrelated, wrong sentence instead of correctly falling
+    through to "no match")."""
+    return bool(GENERIC_ROLE_ONLY_RE.fullmatch(text.strip()))
+
+
+def match_attribute_cross_reference(doc_text, doc_norm, doc_norm_map, attribute, before_index):
+    """Resolve an Attribute that isn't literally present in this statement's
+    own text by searching backward through the whole document for it.
+
+    This dataset's Attribute values are almost always "Titulares de X" /
+    "Usuarios de X" (the legal "holder/user of X" role), most often written
+    as "[Titulares de] X" -- bracketing just the role phrase because the
+    object X was already introduced earlier in the same Article, and this
+    (later, atomistic) statement never restates it. So the primary candidate
+    is the bracket-stripped remainder itself (the object, e.g. "fuentes
+    estacionarias"). Some rows instead bracket the object directly (e.g.
+    "Titulares de [calderas]", or a fully-elided "[Ministerio de
+    Transportes y Telecomunicaciones]"), so each bracketed segment is also
+    tried, together with that segment stripped of a leading "Titulares
+    de"/"Usuarios de" role prefix -- i.e. mapping the object back to its
+    titular.
+
+    Returns (start, end, matched_text) in absolute document offsets, or None.
+    """
+    candidates = []
+
+    outside = BRACKET_RE.sub("", attribute).strip()
+    if outside and not _is_generic_role_only(outside):
+        candidates.append(outside)
+
+    for segment in BRACKET_CONTENT_RE.findall(attribute):
+        segment = segment.strip()
+        if not segment or segment.lower() in LOGICAL_MARKERS:
+            continue
+        if not _is_generic_role_only(segment):
+            candidates.append(segment)
+        object_part = ROLE_PREFIX_RE.sub("", segment).strip()
+        if object_part and object_part != segment and not _is_generic_role_only(object_part):
+            candidates.append(object_part)
+
+    for candidate in candidates:
+        result = find_last_occurrence_before(
+            doc_text, doc_norm, doc_norm_map, candidate, before_index
+        )
+        if result:
+            return result
+
     return None
 
 
@@ -119,19 +198,44 @@ def tag_statements(doc_text, statements):
         attribute = stmt.get("attribute")
         if attribute is not None:
             match = match_attribute(doc_text[start:end], attribute)
-            if match is None:
-                unmatched_attributes.append(stmt)
-            else:
+            if match is not None:
                 local_start, local_end, matched_text = match
                 attribute_annotations.append(
                     {
+                        "stmt_no": stmt["stmt_no"],
                         "start": start + local_start,
                         "end": start + local_end,
                         "text": matched_text,
+                        "attribute_excel": attribute,
+                        "match_source": "local",
                     }
                 )
+            elif "[" in attribute:
+                cross_match = match_attribute_cross_reference(
+                    doc_text, doc_norm, doc_norm_map, attribute, start
+                )
+                if cross_match is None:
+                    unmatched_attributes.append(stmt)
+                else:
+                    cross_start, cross_end, matched_text = cross_match
+                    attribute_annotations.append(
+                        {
+                            "stmt_no": stmt["stmt_no"],
+                            "start": cross_start,
+                            "end": cross_end,
+                            "text": matched_text,
+                            "attribute_excel": attribute,
+                            "match_source": "cross_reference",
+                        }
+                    )
+            else:
+                unmatched_attributes.append(stmt)
 
-        if stmt.get("deontic_surface"):
+        # A blank Excel "Deontic" cell means the coder made no deontic call for
+        # this row; skip it outright rather than falling back to the bold
+        # surface phrase as a substitute label (an empty field is left empty,
+        # not logged as an unmatched/failed deontic).
+        if stmt.get("deontic") is not None and stmt.get("deontic_surface"):
             deontic_ann = tag_deontic_for_span(doc_text, stmt, start, end)
             if deontic_ann is None:
                 unmatched_deontics.append(stmt)
@@ -173,9 +277,8 @@ def write_deontic_label_annotations(attribute_annotations, deontic_annotations, 
             f.write(f"T{tid}\tAttribute {ann['start']} {ann['end']}\t{ann['text']}\n")
             tid += 1
         for ann in deontic_annotations:
-            label, _ = normalize_with_map(ann.get("deontic") or "")
-            text = label or ann["text"]
-            f.write(f"T{tid}\tDeontic {ann['start']} {ann['end']}\t{text}\n")
+            label, _ = normalize_with_map(ann["deontic"])
+            f.write(f"T{tid}\tDeontic {ann['start']} {ann['end']}\t{label}\n")
             tid += 1
 
 

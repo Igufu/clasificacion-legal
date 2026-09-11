@@ -4,6 +4,7 @@ Used both to locate a Raw Statement inside the official document and to
 locate an Attribute inside its statement span.
 """
 
+import bisect
 import re
 
 BRACKET_RE = re.compile(r"\[[^\]]*\]")
@@ -58,14 +59,48 @@ def find_exact(text, candidate):
     return idx, idx + len(candidate), text[idx : idx + len(candidate)]
 
 
-def find_whitespace_insensitive(text, candidate):
+def find_whitespace_insensitive(text, candidate, ignore_case=False):
     candidate_norm, _ = normalize_with_map(candidate)
     if not candidate_norm:
         return None
     text_norm, text_map = normalize_with_map(text)
-    idx = text_norm.find(candidate_norm)
+    haystack = text_norm.lower() if ignore_case else text_norm
+    needle = candidate_norm.lower() if ignore_case else candidate_norm
+    idx = haystack.find(needle)
     if idx == -1:
         return None
     start = text_map[idx]
-    end = text_map[idx + len(candidate_norm) - 1] + 1
+    end = text_map[idx + len(needle) - 1] + 1
     return start, end, text[start:end]
+
+
+def find_last_occurrence_before(doc_text, doc_norm, doc_norm_map, candidate, before_index, ignore_case=True):
+    """Find the nearest occurrence of `candidate` in `doc_norm` ending at or
+    before `before_index` (an offset into the original `doc_text`).
+
+    Used to resolve an Attribute a coder bracketed because it isn't literally
+    present in the current statement's own text -- the actor/object was
+    typically already named explicitly in an earlier sentence of the same
+    Article, so this searches backward through the whole document instead of
+    just the statement's span. A candidate match embedding a raw newline is
+    skipped (not a valid single-line brat span) and the search retries
+    further back rather than accepting it.
+    """
+    candidate_norm, _ = normalize_with_map(candidate)
+    if not candidate_norm:
+        return None
+
+    haystack = doc_norm.lower() if ignore_case else doc_norm
+    needle = candidate_norm.lower() if ignore_case else candidate_norm
+
+    search_end = bisect.bisect_left(doc_norm_map, before_index)
+    while True:
+        idx = haystack.rfind(needle, 0, search_end)
+        if idx == -1:
+            return None
+        start = doc_norm_map[idx]
+        end = doc_norm_map[idx + len(needle) - 1] + 1
+        text = doc_text[start:end]
+        if "\n" not in text and "\r" not in text:
+            return start, end, text
+        search_end = idx
