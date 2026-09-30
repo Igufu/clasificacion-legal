@@ -232,264 +232,264 @@ T231	Attribute 171406 171424	servicios públicos
 T232	Attribute 171793 171822	Ministerio del Medio Ambiente
 T233	Attribute 171937 171955	servicios públicos
 T234	Attribute 184033 184135	El Ministerio del Medio Ambiente en coordinación con el Ministerio de Transportes y Telecomunicaciones
-T235	Deontic 59723 59737	deberán
-T236	Deontic 61919 61935	podrán
-T237	Deontic 62120 62135	deberán
-T238	Deontic 62463 62477	deberá
-T239	Deontic 62778 62804	[deberá]
-T240	Deontic 63242 63250	[deberá]
-T241	Deontic 63895 63913	deberán
-T242	Deontic 64482 64490	[deberá]
-T243	Deontic 64619 64629	[deberá]
-T244	Deontic 65923 65933	[deberán]
-T245	Deontic 66220 66231	[deberá]
-T246	Deontic 66690 66707	deberá
-T247	Deontic 67117 67137	[no deben]
-T248	Deontic 67328 67353	[pueden]
-T249	Deontic 67549 67565	[deberán]
-T250	Deontic 67663 67683	[deberán]
-T251	Deontic 67781 67796	no [podrán]
-T252	Deontic 68100 68115	no [podrán]
-T253	Deontic 68285 68300	[deberán]
-T254	Deontic 68365 68385	[deberán]
-T255	Deontic 68674 68684	[deberán]
-T256	Deontic 68984 68995	[deberán]
-T257	Deontic 69261 69270	[deberá]
-T258	Deontic 69665 69682	deberán
-T259	Deontic 70240 70255	deberán
-T260	Deontic 70499 70511	deberán
-T261	Deontic 70806 70829	deberá
-T262	Deontic 71053 71070	podrán
-T263	Deontic 71279 71292	[deberá]
-T264	Deontic 71637 71651	deberá
-T265	Deontic 73463 73479	deberá
-T266	Deontic 74978 74988	[no deben]
-T267	Deontic 75166 75192	no [podrán]
-T268	Deontic 75679 75693	[no deben]
-T269	Deontic 75756 75767	podrá
-T270	Deontic 75922 75946	no podrá
-T271	Deontic 78671 78682	[deberá]
-T272	Deontic 79099 79119	[deberán]
-T273	Deontic 79173 79190	podrán
-T274	Deontic 79450 79467	podrá
-T275	Deontic 79973 79993	no podrá
-T276	Deontic 80229 80250	podrá
-T277	Deontic 80760 80774	deberán
-T278	Deontic 80875 80888	podrán
-T279	Deontic 81137 81160	deberán
-T280	Deontic 81348 81364	deberán
-T281	Deontic 81548 81571	deberán
-T282	Deontic 81672 81690	podrán
-T283	Deontic 81925 81938	podrá
-T284	Deontic 82554 82571	deberán
-T285	Deontic 82859 82875	deberán
-T286	Deontic 83363 83381	deberán
-T287	Deontic 83643 83660	deberán
-T288	Deontic 83999 84011	[deberá]
-T289	Deontic 84416 84425	[deberá]
-T290	Deontic 84823 84850	deberá
-T291	Deontic 85005 85018	[deberá]
-T292	Deontic 85146 85159	[deberá]
-T293	Deontic 85592 85610	[no deben]
-T294	Deontic 86084 86098	[deberán]
-T295	Deontic 86267 86276	[deberán]
-T296	Deontic 86433 86448	podrán
-T297	Deontic 86797 86813	deben
-T298	Deontic 87037 87058	deberán
-T299	Deontic 87241 87251	[deberá]
-T300	Deontic 87745 87764	[no deben]
-T301	Deontic 88200 88214	deberán
-T302	Deontic 88632 88647	deben
-T303	Deontic 88745 88757	[no deben]
-T304	Deontic 89448 89462	[deberá]
-T305	Deontic 90109 90125	deben
-T306	Deontic 88745 88758	[no deben]
-T307	Deontic 90839 90852	[no deben]
-T308	Deontic 91022 91038	deberá
-T309	Deontic 91215 91230	[deberá]
-T310	Deontic 91672 91689	deberán
-T311	Deontic 92409 92427	deberán
-T312	Deontic 92581 92597	deberán
-T313	Deontic 92732 92741	[podrán]
-T314	Deontic 92890 92907	deberán
-T315	Deontic 93233 93254	deberá
-T316	Deontic 93437 93464	deberá
-T317	Deontic 93746 93763	deberán
-T318	Deontic 94356 94367	podrá
-T319	Deontic 94450 94468	debe
-T320	Deontic 95496 95512	deberán
-T321	Deontic 95647 95663	deberán
-T322	Deontic 96190 96199	[deberá]
-T323	Deontic 96428 96444	deberán
-T324	Deontic 96595 96607	[no deben]
-T325	Deontic 97032 97051	deberán
-T326	Deontic 97317 97334	deberá
-T327	Deontic 97487 97504	deberán
-T328	Deontic 97792 97810	deberán
-T329	Deontic 97926 97937	[no deben]
-T330	Deontic 98140 98162	deberán
-T331	Deontic 98362 98379	deberá
-T332	Deontic 98617 98628	[deberán]
-T333	Deontic 99934 99948	deberá
-T334	Deontic 100058 100074	podrán
-T335	Deontic 100290 100306	deberá
-T336	Deontic 100729 100743	deberá
-T337	Deontic 100952 100965	[no podrá]
-T338	Deontic 102941 102959	deberán
-T339	Deontic 103181 103196	deberá
-T340	Deontic 103347 103374	deberá
-T341	Deontic 103599 103617	deberán
-T342	Deontic 103702 103736	podrá
-T343	Deontic 103813 103832	deberá
-T344	Deontic 103953 103970	deberá
-T345	Deontic 104283 104292	[deberá]
-T346	Deontic 105335 105345	[deberá]
-T347	Deontic 105513 105525	[deberá]
-T348	Deontic 105661 105676	deberá
-T349	Deontic 106139 106148	[deberá]
-T350	Deontic 106184 106196	[deberá]
-T351	Deontic 109698 109711	deberán
-T352	Deontic 110033 110049	deberán
-T353	Deontic 110250 110265	[deberá]
-T354	Deontic 114268 114285	deberán
-T355	Deontic 114611 114629	deberán
-T356	Deontic 114739 114758	deberán
-T357	Deontic 114850 114872	solo podrá
-T358	Deontic 116229 116247	deberán
-T359	Deontic 116723 116740	deberán
-T360	Deontic 117082 117100	deberá
-T361	Deontic 120163 120181	deberán
-T362	Deontic 120727 120744	deberán
-T363	Deontic 121084 121097	[deberá]
-T364	Deontic 121261 121283	deberán
-T365	Deontic 121726 121743	deberán
-T366	Deontic 122354 122369	deberán
-T367	Deontic 122581 122600	deberán
-T368	Deontic 122979 122991	[no deben]
-T369	Deontic 123553 123571	deberán
-T370	Deontic 123921 123932	[deberá]
-T371	Deontic 124084 124103	deberán
-T372	Deontic 124930 124949	deberán
-T373	Deontic 125274 125290	deberán
-T374	Deontic 125494 125502	[podrán]
-T375	Deontic 125626 125636	[deberán]
-T376	Deontic 125844 125860	deberán
-T377	Deontic 126004 126015	[no deben]
-T378	Deontic 126161 126171	[deberán]
-T379	Deontic 126340 126356	deberán
-T380	Deontic 126452 126463	[no deben]
-T381	Deontic 126610 126619	[deberán]
-T382	Deontic 126767 126782	deberán
-T383	Deontic 127038 127051	[deberá]
-T384	Deontic 128663 128680	[no deben]
-T385	Deontic 128949 128977	solo [podrán]
-T386	Deontic 129109 129151	[deberá]
-T387	Deontic 129324 129341	[no deben]
-T388	Deontic 129465 129507	[deberá]
-T389	Deontic 129764 129775	[deberá]
-T390	Deontic 129829 129854	[deberá]
-T391	Deontic 130404 130446	[deberá]
-T392	Deontic 130928 130947	[no deben]
-T393	Deontic 131016 131036	[no deben]
-T394	Deontic 131267 131283	no podrán
-T395	Deontic 131384 131426	[deberá]
-T396	Deontic 131667 131709	[deberá]
-T397	Deontic 131869 131878	[deberá]
-T398	Deontic 132181 132197	deberá
-T399	Deontic 132579 132588	[deberá]
-T400	Deontic 132980 132989	[deberá]
-T401	Deontic 133852 133876	[no deben]
-T402	Deontic 134211 134284	[deberá]
-T403	Deontic 134497 134507	[deberá]
-T404	Deontic 134873 134887	[deberá]
-T405	Deontic 135221 135232	[deberá]
-T406	Deontic 135622 135636	deberán
-T407	Deontic 135922 135930	[deberá]
-T408	Deontic 136255 136269	deberán
-T409	Deontic 136628 136644	deberán
-T410	Deontic 137045 137057	[deberá]
-T411	Deontic 137358 137367	[deberá]
-T412	Deontic 137573 137582	[deberá]
-T413	Deontic 137664 137678	[deberá]
-T414	Deontic 137959 137968	[deberá]
-T415	Deontic 138264 138277	podrá
-T416	Deontic 138581 138594	[deberá]
-T417	Deontic 138904 138913	[deberá]
-T418	Deontic 139375 139388	podrá
-T419	Deontic 139701 139711	[deberán]
-T420	Deontic 140068 140077	[deberán]
-T421	Deontic 140186 140194	[deberán]
-T422	Deontic 140556 140565	[deberán]
-T423	Deontic 141294 141314	[no debe]
-T424	Deontic 141702 141748	[deberán]
-T425	Deontic 142274 142286	[deberán]
-T426	Deontic 142602 142611	[deberá]
-T427	Deontic 142752 142769	[deberá]
-T428	Deontic 143461 143472	[deberá]
-T429	Deontic 143678 143696	[deberá]
-T430	Deontic 145501 145509	[deberá]
-T431	Deontic 145934 145943	[deberá]
-T432	Deontic 146287 146297	[deberá]
-T433	Deontic 146539 146549	[deberá]
-T434	Deontic 147707 147723	deberán
-T435	Deontic 148484 148493	[deberá]
-T436	Deontic 148958 148981	[deberá]
-T437	Deontic 149193 149202	[deberán]
-T438	Deontic 149543 149550	[deberá]
-T439	Deontic 149932 149942	[deberá]
-T440	Deontic 150372 150382	[deberán]
-T441	Deontic 150562 150572	[deberán]
-T442	Deontic 150765 150786	[deberán]
-T443	Deontic 150851 150862	[deberán]
-T444	Deontic 151441 151451	[deberán]
-T445	Deontic 151681 151691	[deberá]
-T446	Deontic 151803 151818	[deberá]
-T447	Deontic 152096 152110	[deberá]
-T448	Deontic 152644 152655	[deberá]
-T449	Deontic 152954 152964	[deberá]
-T450	Deontic 153104 153112	[deberá]
-T451	Deontic 153240 153248	[deberá]
-T452	Deontic 153559 153571	[deberá]
-T453	Deontic 153958 153971	[deberá]
-T454	Deontic 154341 154353	[deberá]
-T455	Deontic 154800 154827	[deberán]
-T456	Deontic 156631 156641	[deberán]
-T457	Deontic 157071 157081	[deberán]
-T458	Deontic 157454 157479	[deberá]
-T459	Deontic 157763 157777	[deberá]
-T460	Deontic 158062 158078	podrá
-T461	Deontic 158384 158405	[deberá]
-T462	Deontic 159002 159016	deberá
-T463	Deontic 159265 159284	deberá
-T464	Deontic 159650 159670	deberá
-T465	Deontic 160058 160077	solo [podrán]
-T466	Deontic 161055 161070	deberá
-T467	Deontic 161314 161334	no podrán
-T468	Deontic 161544 161623	[deberá]
-T469	Deontic 161768 161784	podrá
-T470	Deontic 162046 162061	podrá
-T471	Deontic 162424 162434	[deberá]
-T472	Deontic 163093 163102	[deberá]
-T473	Deontic 163347 163362	deberá
-T474	Deontic 164336 164356	no podrán
-T475	Deontic 164538 164620	[deberá]
-T476	Deontic 164765 164781	podrá
-T477	Deontic 165043 165059	podrá
-T478	Deontic 165422 165431	[deberá]
-T479	Deontic 166452 166466	deberá
-T480	Deontic 167443 167462	no podrán
-T481	Deontic 167648 167727	[deberá]
-T482	Deontic 168171 168187	podrá
-T483	Deontic 168526 168536	[deberá]
-T484	Deontic 168983 168994	[deberá]
-T485	Deontic 169277 169286	[deberá]
-T486	Deontic 169457 169470	[deberá]
-T487	Deontic 170288 170310	podrá
-T488	Deontic 170679 170687	[deberá]
-T489	Deontic 171281 171314	[deberá]
-T490	Deontic 171425 171441	deberán
-T491	Deontic 171542 171550	[deberá]
-T492	Deontic 171746 171760	[deberá]
+T235	Deontic 59723 59737	deberán contar
+T236	Deontic 61919 61935	podrán solicitar
+T237	Deontic 62120 62135	deberán cumplir
+T238	Deontic 62463 62477	deberá definir
+T239	Deontic 62778 62804	responsabilidad de aplicar
+T240	Deontic 63242 63250	generará
+T241	Deontic 63895 63913	deberán establecer
+T242	Deontic 64482 64490	diseñará
+T243	Deontic 64619 64629	gestionará
+T244	Deontic 65923 65933	promoverán
+T245	Deontic 66220 66231	establecerá
+T246	Deontic 66690 66707	deberá considerar
+T247	Deontic 67117 67137	prohíbe la operación
+T248	Deontic 67328 67353	exceptúa esta prohibición
+T249	Deontic 67549 67565	será fiscalizada
+T250	Deontic 67663 67683	debiendo denunciarse
+T251	Deontic 67781 67796	No se permitirá
+T252	Deontic 68100 68115	no se permitirá
+T253	Deontic 68285 68300	será fiscalizad
+T254	Deontic 68365 68385	debiendo denunciarse
+T255	Deontic 68674 68684	evaluarán 
+T256	Deontic 68984 68995	considerará
+T257	Deontic 69261 69270	 iniciará
+T258	Deontic 69665 69682	deberán establece
+T259	Deontic 70240 70255	deberán exhibir
+T260	Deontic 70499 70511	deberán usar
+T261	Deontic 70806 70829	deberá quedar contenida
+T262	Deontic 71053 71070	podrán exceptuar 
+T263	Deontic 71279 71292	se coordinará
+T264	Deontic 71637 71651	deberá cumplir
+T265	Deontic 73463 73479	deberá establece
+T266	Deontic 74978 74988	Se prohíbe
+T267	Deontic 75166 75192	 No está permitido agregar
+T268	Deontic 75679 75693	no se aplicará
+T269	Deontic 75756 75767	autorizadas
+T270	Deontic 75922 75946	no podrá comercializarse
+T271	Deontic 78671 78682	fiscalizará
+T272	Deontic 79099 79119	será responsabilidad
+T273	Deontic 79173 79190	podrán efectuarlo
+T274	Deontic 79450 79467	 podrá establecer
+T275	Deontic 79973 79993	no podrá modificarse
+T276	Deontic 80229 80250	sólo podrá disponerse
+T277	Deontic 80760 80774	deberán contar
+T278	Deontic 80875 80888	podrán usarse
+T279	Deontic 81137 81160	deberán estar equipados
+T280	Deontic 81348 81364	deberán disponer
+T281	Deontic 81548 81571	deberán estar diseñados
+T282	Deontic 81672 81690	se podrán utilizar
+T283	Deontic 81925 81938	podrá dictar 
+T284	Deontic 82554 82571	 deberán cumplir 
+T285	Deontic 82859 82875	deberán disponer
+T286	Deontic 83363 83381	deberán observarse
+T287	Deontic 83643 83660	deberán presentar
+T288	Deontic 83999 84011	desarrollará
+T289	Deontic 84416 84425	realizará
+T290	Deontic 84823 84850	deberá ser puesto en marcha
+T291	Deontic 85005 85018	implementará 
+T292	Deontic 85146 85159	 incorporarán
+T293	Deontic 85592 85610	exentos de cumplir
+T294	Deontic 86084 86098	se acreditarán
+T295	Deontic 86267 86276	aplicarán
+T296	Deontic 86433 86448	podrán mantener
+T297	Deontic 86797 86813	deben satisfacer
+T298	Deontic 87037 87058	deberá ser acreditada
+T299	Deontic 87241 87251	informará 
+T300	Deontic 87745 87764	exentos de cumplir 
+T301	Deontic 88200 88214	se acreditarán
+T302	Deontic 88632 88647	deben cumplirse
+T303	Deontic 88745 88757	Se exceptúan
+T304	Deontic 89448 89462	será entregada
+T305	Deontic 90109 90125	 deben cumplirse
+T306	Deontic 88745 88758	Se exceptúan 
+T307	Deontic 90839 90852	Se prohíben l
+T308	Deontic 91022 91038	deberá autorizar
+T309	Deontic 91215 91230	 se acreditará 
+T310	Deontic 91672 91689	deberán acreditar
+T311	Deontic 92409 92427	deberán acreditar 
+T312	Deontic 92581 92597	deberán realizar
+T313	Deontic 92732 92741	Se eximen
+T314	Deontic 92890 92907	deberán presentar
+T315	Deontic 93233 93254	deberá individualizar
+T316	Deontic 93437 93464	deberá poner a disposición 
+T317	Deontic 93746 93763	deberán informar 
+T318	Deontic 94356 94367	podrá medir
+T319	Deontic 94450 94468	debiendo acreditar
+T320	Deontic 95496 95512	deberán disponer
+T321	Deontic 95647 95663	deberá diseñarse
+T322	Deontic 96190 96199	definirá 
+T323	Deontic 96428 96444	dar cumplimiento
+T324	Deontic 96595 96607	Se exceptúan
+T325	Deontic 97032 97051	deberán implementar
+T326	Deontic 97317 97334	debe ser aprobado
+T327	Deontic 97487 97504	deberán continuar
+T328	Deontic 97792 97810	deberán cumplirse 
+T329	Deontic 97926 97937	Se excluyen
+T330	Deontic 98140 98162	deberán estar en línea
+T331	Deontic 98362 98379	deberá establecer
+T332	Deontic 98617 98628	 implementa
+T333	Deontic 99934 99948	deberá reducir
+T334	Deontic 100058 100074	podrá alcanzarse
+T335	Deontic 100290 100306	deberá presentar
+T336	Deontic 100729 100743	deberá informa
+T337	Deontic 100952 100965	podrá superar
+T338	Deontic 102941 102959	deberán compensar 
+T339	Deontic 103181 103196	deberá publicar
+T340	Deontic 103347 103374	deberá mantener actualizado
+T341	Deontic 103599 103617	deberán presentar 
+T342	Deontic 103702 103736	podrán ser aprobados o rechazados 
+T343	Deontic 103813 103832	deberá formalizarse
+T344	Deontic 103953 103970	deberá considerar
+T345	Deontic 104283 104292	aplicará 
+T346	Deontic 105335 105345	notificará
+T347	Deontic 105513 105525	desarrollará
+T348	Deontic 105661 105676	deberá entregar
+T349	Deontic 106139 106148	aprobados
+T350	Deontic 106184 106196	fiscalizados
+T351	Deontic 109698 109711	deberán sumar
+T352	Deontic 110033 110049	deberán entregar
+T353	Deontic 110250 110265	 se formalizará
+T354	Deontic 114268 114285	deberán presentar
+T355	Deontic 114611 114629	deberán presentar 
+T356	Deontic 114739 114758	deba ser presentado
+T357	Deontic 114850 114872	solo podrá establecer 
+T358	Deontic 116229 116247	deberá incorporar 
+T359	Deontic 116723 116740	deberán declarar 
+T360	Deontic 117082 117100	deberá desarrollar
+T361	Deontic 120163 120181	deberán acreditar 
+T362	Deontic 120727 120744	deberán acreditar
+T363	Deontic 121084 121097	será definido
+T364	Deontic 121261 121283	deberán ser informados
+T365	Deontic 121726 121743	deberán presentar
+T366	Deontic 122354 122369	deberán cumplir
+T367	Deontic 122581 122600	deberá implementar 
+T368	Deontic 122979 122991	Se exceptúan
+T369	Deontic 123553 123571	 deberán presentar
+T370	Deontic 123921 123932	fiscalizar 
+T371	Deontic 124084 124103	deberán implementar
+T372	Deontic 124930 124949	deberán implementar
+T373	Deontic 125274 125290	deberán realizar
+T374	Deontic 125494 125502	programe
+T375	Deontic 125626 125636	completar 
+T376	Deontic 125844 125860	deberán realizar
+T377	Deontic 126004 126015	se exceptúa
+T378	Deontic 126161 126171	 completar
+T379	Deontic 126340 126356	deberán realizar
+T380	Deontic 126452 126463	se exceptúa
+T381	Deontic 126610 126619	completar
+T382	Deontic 126767 126782	deberán llevar 
+T383	Deontic 127038 127051	desarrollará 
+T384	Deontic 128663 128680	se prohíbe el uso
+T385	Deontic 128949 128977	sólo estará permitido el uso
+T386	Deontic 129109 129151	fiscalización de esta medida corresponderá
+T387	Deontic 129324 129341	se prohíbe el uso
+T388	Deontic 129465 129507	fiscalización de esta medida corresponderá
+T389	Deontic 129764 129775	fortalecerá
+T390	Deontic 129829 129854	analizará la pertinencia 
+T391	Deontic 130404 130446	fiscalización de esta medida corresponderá
+T392	Deontic 130928 130947	se prohibirá el uso
+T393	Deontic 131016 131036	Se eximen de cumplir
+T394	Deontic 131267 131283	no podrán operar
+T395	Deontic 131384 131426	fiscalización de esta medida corresponderá
+T396	Deontic 131667 131709	fiscalización de esta medida corresponderá
+T397	Deontic 131869 131878	 apoyará 
+T398	Deontic 132181 132197	deberá coordinar
+T399	Deontic 132579 132588	levantará
+T400	Deontic 132980 132989	fomentará
+T401	Deontic 133852 133876	Se exceptúan de cumplir 
+T402	Deontic 134211 134284	control, fiscalización y sanción en caso de incumplimiento, corresponderá
+T403	Deontic 134497 134507	 propondrá
+T404	Deontic 134873 134887	dará a conocer
+T405	Deontic 135221 135232	actualizará
+T406	Deontic 135622 135636	deberá cumplir
+T407	Deontic 135922 135930	apoyará 
+T408	Deontic 136255 136269	deberán contar
+T409	Deontic 136628 136644	deberán informar
+T410	Deontic 137045 137057	se aplicarán
+T411	Deontic 137358 137367	evaluará 
+T412	Deontic 137573 137582	aplicarán
+T413	Deontic 137664 137678	 se realizará 
+T414	Deontic 137959 137968	encargará
+T415	Deontic 138264 138277	podrá aplicar
+T416	Deontic 138581 138594	 desarrollará
+T417	Deontic 138904 138913	fomentará
+T418	Deontic 139375 139388	podrá aplicar
+T419	Deontic 139701 139711	elaborarán
+T420	Deontic 140068 140077	evaluarán
+T421	Deontic 140186 140194	buscarán
+T422	Deontic 140556 140565	evaluarán
+T423	Deontic 141294 141314	se prohíbe la quema 
+T424	Deontic 141702 141748	La fiscalización de esta medida corresponderá 
+T425	Deontic 142274 142286	 elaborarán 
+T426	Deontic 142602 142611	 diseñará
+T427	Deontic 142752 142769	deberá orientarse
+T428	Deontic 143461 143472	 continuará
+T429	Deontic 143678 143696	procurando obtener
+T430	Deontic 145501 145509	 apoyará
+T431	Deontic 145934 145943	elaborará
+T432	Deontic 146287 146297	gestionará
+T433	Deontic 146539 146549	gestionará
+T434	Deontic 147707 147723	deberán utilizar
+T435	Deontic 148484 148493	propondrá
+T436	Deontic 148958 148981	coordinará y gestionará
+T437	Deontic 149193 149202	apoyarán 
+T438	Deontic 149543 149550	apoyará
+T439	Deontic 149932 149942	gestionará
+T440	Deontic 150372 150382	elaborarán
+T441	Deontic 150562 150572	propondrán
+T442	Deontic 150765 150786	diseñará y coordinará
+T443	Deontic 150851 150862	Fortalecer 
+T444	Deontic 151441 151451	Incentivar
+T445	Deontic 151681 151691	coordinará
+T446	Deontic 151803 151818	Implementación 
+T447	Deontic 152096 152110	Implementación
+T448	Deontic 152644 152655	Realización
+T449	Deontic 152954 152964	coordinará
+T450	Deontic 153104 153112	definirá
+T451	Deontic 153240 153248	Promover
+T452	Deontic 153559 153571	se realizará
+T453	Deontic 153958 153971	 implementará
+T454	Deontic 154341 154353	se informará
+T455	Deontic 154800 154827	 diseñarán e implementarán 
+T456	Deontic 156631 156641	coordinado
+T457	Deontic 157071 157081	 enviarán 
+T458	Deontic 157454 157479	 dispondrá e implementará
+T459	Deontic 157763 157777	 se coordinará
+T460	Deontic 158062 158078	podrá establecer
+T461	Deontic 158384 158405	deberá ser informado 
+T462	Deontic 159002 159016	deberá definir
+T463	Deontic 159265 159284	deberá intensificar
+T464	Deontic 159650 159670	 deberá intensificar
+T465	Deontic 160058 160077	 sólo se permitirán
+T466	Deontic 161055 161070	deberá definir 
+T467	Deontic 161314 161334	 No podrán funcionar
+T468	Deontic 161544 161623	fiscalización de esta medida y sanción en caso de incumplimiento, corresponderá
+T469	Deontic 161768 161784	podrá recomendar
+T470	Deontic 162046 162061	podrá suspender
+T471	Deontic 162424 162434	 reforzará
+T472	Deontic 163093 163102	dispondrá
+T473	Deontic 163347 163362	deberá definir 
+T474	Deontic 164336 164356	No podrán funcionar 
+T475	Deontic 164538 164620	La fiscalización de esta medida y sanción en caso de incumplimiento, corresponderá
+T476	Deontic 164765 164781	podrá recomendar
+T477	Deontic 165043 165059	podrá suspender 
+T478	Deontic 165422 165431	reforzará
+T479	Deontic 166452 166466	deberá definir
+T480	Deontic 167443 167462	No podrán funcionar
+T481	Deontic 167648 167727	fiscalización de esta medida y sanción en caso de incumplimiento, corresponderá
+T482	Deontic 168171 168187	 podrá suspender
+T483	Deontic 168526 168536	reforzará 
+T484	Deontic 168983 168994	 informará 
+T485	Deontic 169277 169286	declarará
+T486	Deontic 169457 169470	hará públicas
+T487	Deontic 170288 170310	podrá dejar sin efecto
+T488	Deontic 170679 170687	informar
+T489	Deontic 171281 171314	tará encargada de la verificación
+T490	Deontic 171425 171441	deberán informar
+T491	Deontic 171542 171550	remitirá
+T492	Deontic 171746 171760	será publicado
 T493	Deontic 171956 171963	deberán
-T494	Deontic 172103 172113	[deberán]
-T495	Deontic 184137 184149	[deberán]
+T494	Deontic 172103 172113	solicitar 
+T495	Deontic 184137 184149	desarrollará

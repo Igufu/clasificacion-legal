@@ -34,6 +34,7 @@ from matching import (
     reject_multiline,
 )
 from paths import (
+    DEONTIC_DIFF_CSV_PATH,
     DOC_ANN_PATH,
     DOC_DEONTIC_LABEL_ANN_PATH,
     STATEMENTS_JSON_PATH,
@@ -240,6 +241,7 @@ def tag_statements(doc_text, statements):
             if deontic_ann is None:
                 unmatched_deontics.append(stmt)
             else:
+                deontic_ann["stmt_no"] = stmt["stmt_no"]
                 deontic_annotations.append(deontic_ann)
 
     return (
@@ -282,6 +284,82 @@ def write_deontic_label_annotations(attribute_annotations, deontic_annotations, 
             tid += 1
 
 
+def _strip_bracket_chars(value):
+    return value.replace("[", "").replace("]", "")
+
+
+def _normalize_loose(value):
+    return " ".join(value.lower().split())
+
+
+def _deontics_match(excel_deontic, literal_text):
+    """True if the literal source text equals the Excel Deontic value once
+    bracket characters (implicit-modality notation) are dropped and
+    whitespace/case are normalized."""
+    return _normalize_loose(_strip_bracket_chars(excel_deontic)) == _normalize_loose(
+        literal_text
+    )
+
+
+def write_deontic_diff(
+    attribute_annotations, deontic_annotations, unmatched_deontics, path
+):
+    """One row per Excel Deontic that either has no matching span in the
+    document, or whose matched surface text disagrees with the Excel value
+    (brackets aside). Rows where they agree are omitted — this file is only
+    the review queue.
+
+    T_id numbering matches deontic_literal.ann / document_deontic_label.ann,
+    where deontics are numbered continuously after all Attribute lines.
+    """
+    n_attrs = len(attribute_annotations)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "stmt_no",
+                "T_id",
+                "start",
+                "end",
+                "literal_text",
+                "excel_deontic",
+                "is_implicit",
+                "reason",
+            ]
+        )
+        for i, ann in enumerate(deontic_annotations, start=1):
+            excel_deontic, _ = normalize_with_map(ann.get("deontic") or "")
+            literal_text = ann["text"]
+            if _deontics_match(excel_deontic, literal_text):
+                continue
+            writer.writerow(
+                [
+                    ann["stmt_no"],
+                    f"T{n_attrs + i}",
+                    ann["start"],
+                    ann["end"],
+                    literal_text,
+                    excel_deontic,
+                    "[" in excel_deontic,
+                    "mismatch",
+                ]
+            )
+        for stmt in unmatched_deontics:
+            excel_deontic, _ = normalize_with_map(stmt.get("deontic") or "")
+            writer.writerow(
+                [
+                    stmt["stmt_no"],
+                    "",
+                    "",
+                    "",
+                    "",
+                    excel_deontic,
+                    "[" in excel_deontic,
+                    "missing",
+                ]
+            )
+
+
 def write_unmatched(rows, path, extra_field=None):
     """Write unmatched rows to CSV. `extra_field` names the value column (else 'attribute')."""
     value_field = extra_field or "attribute"
@@ -316,6 +394,12 @@ def main():
     write_unmatched(unmatched_statements, UNMATCHED_STATEMENTS_CSV_PATH)
     write_unmatched(
         unmatched_deontics, UNMATCHED_DEONTIC_CSV_PATH, extra_field="deontic_surface"
+    )
+    write_deontic_diff(
+        attribute_annotations,
+        deontic_annotations,
+        unmatched_deontics,
+        DEONTIC_DIFF_CSV_PATH,
     )
 
     total = len(statements)

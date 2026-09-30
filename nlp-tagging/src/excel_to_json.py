@@ -19,7 +19,16 @@ from paths import STATEMENTS_JSON_PATH, XLSX_PATH, ensure_outputs_dir
 
 SHEET_NAME = "DECRETO 31"
 HEADER_ROW = 2
-REQUIRED_COLUMNS = ["Statement No.", "Raw Statement", "Attribute", "Deontic"]
+REQUIRED_COLUMNS = [
+    "Statement No.",
+    "Raw Statement",
+    "Attribute",
+    "Deontic",
+    "Direct Object (Content)",
+    "Direct Object Property",
+    "Indirect Object (Content)",
+    "Indirect Object Property",
+]
 
 
 def find_columns(ws):
@@ -85,6 +94,28 @@ def extract_statements(ws, columns):
         deontic_value = ws.cell(row=row, column=columns["Deontic"]).value
         deontic = None if is_blank(deontic_value) else str(deontic_value)
 
+        direct_object_value = ws.cell(row=row, column=columns["Direct Object (Content)"]).value
+        direct_object = None if is_blank(direct_object_value) else str(direct_object_value)
+
+        direct_object_property_value = ws.cell(
+            row=row, column=columns["Direct Object Property"]
+        ).value
+        direct_object_property = (
+            None if is_blank(direct_object_property_value) else str(direct_object_property_value)
+        )
+
+        indirect_object_value = ws.cell(row=row, column=columns["Indirect Object (Content)"]).value
+        indirect_object = None if is_blank(indirect_object_value) else str(indirect_object_value)
+
+        indirect_object_property_value = ws.cell(
+            row=row, column=columns["Indirect Object Property"]
+        ).value
+        indirect_object_property = (
+            None
+            if is_blank(indirect_object_property_value)
+            else str(indirect_object_property_value)
+        )
+
         deontic_surface_raw = extract_bold_surface(raw_cell)
         deontic_surface = deontic_surface_raw if deontic_surface_raw.strip() else None
 
@@ -95,6 +126,10 @@ def extract_statements(ws, columns):
                 "attribute": attribute,
                 "deontic": deontic,
                 "deontic_surface": deontic_surface,
+                "direct_object": direct_object,
+                "direct_object_property": direct_object_property,
+                "indirect_object": indirect_object,
+                "indirect_object_property": indirect_object_property,
             }
         )
 

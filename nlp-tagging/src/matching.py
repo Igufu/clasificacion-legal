@@ -6,6 +6,7 @@ locate an Attribute inside its statement span.
 
 import bisect
 import re
+import unicodedata
 
 BRACKET_RE = re.compile(r"\[[^\]]*\]")
 
@@ -100,6 +101,89 @@ def find_last_occurrence_before(doc_text, doc_norm, doc_norm_map, candidate, bef
             return None
         start = doc_norm_map[idx]
         end = doc_norm_map[idx + len(needle) - 1] + 1
+        text = doc_text[start:end]
+        if "\n" not in text and "\r" not in text:
+            return start, end, text
+        search_end = idx
+
+
+def strip_diacritics_with_map(s):
+    """NFD-normalize `s`, drop combining marks, lower-case what remains.
+
+    Returns (folded_str, index_map) where index_map[i] is the index in `s`
+    corresponding to folded_str[i]. A single source char can expand to
+    zero (pure combining), one (typical), or more folded chars; the map
+    always points back to the originating source index.
+
+    Used only by the last-chance matching tier for values that differ
+    from the source only in Spanish accent marks (e.g. Excel "estandar"
+    vs. doc "estándar", "Energetica" vs. "Energética").
+    """
+    chars = []
+    index_map = []
+    for i, ch in enumerate(s):
+        for sub in unicodedata.normalize("NFD", ch):
+            if unicodedata.combining(sub):
+                continue
+            chars.append(sub.lower())
+            index_map.append(i)
+    return "".join(chars), index_map
+
+
+def find_diacritic_insensitive(text, candidate):
+    """Whitespace + case + diacritic-insensitive find. Last-chance tier.
+
+    Composes whitespace collapse (normalize_with_map) with combining-mark
+    stripping (strip_diacritics_with_map), so both accent-only and
+    whitespace-only differences fold out before comparison.
+    """
+    cand_ws, _ = normalize_with_map(candidate)
+    cand_folded, _ = strip_diacritics_with_map(cand_ws)
+    if not cand_folded:
+        return None
+
+    text_ws, ws_map = normalize_with_map(text)
+    text_folded, dia_map = strip_diacritics_with_map(text_ws)
+
+    idx = text_folded.find(cand_folded)
+    if idx == -1:
+        return None
+    start = ws_map[dia_map[idx]]
+    end = ws_map[dia_map[idx + len(cand_folded) - 1]] + 1
+    return start, end, text[start:end]
+
+
+def build_doc_folded(doc_text):
+    """Precompute the whitespace-collapsed, diacritic-stripped, lower-cased
+    form of `doc_text` together with the composed map back to original
+    offsets. Used to give find_last_occurrence_before_folded an O(1) haystack.
+    """
+    doc_ws, ws_map = normalize_with_map(doc_text)
+    doc_folded, dia_map = strip_diacritics_with_map(doc_ws)
+    folded_to_original = [ws_map[i] for i in dia_map]
+    return doc_folded, folded_to_original
+
+
+def find_last_occurrence_before_folded(
+    doc_text, doc_folded, folded_to_original, candidate, before_index
+):
+    """Backward whitespace + case + diacritic-insensitive search.
+
+    Same contract as find_last_occurrence_before, but folds accents too.
+    `doc_folded` and `folded_to_original` come from build_doc_folded.
+    """
+    cand_ws, _ = normalize_with_map(candidate)
+    cand_folded, _ = strip_diacritics_with_map(cand_ws)
+    if not cand_folded:
+        return None
+
+    search_end = bisect.bisect_left(folded_to_original, before_index)
+    while True:
+        idx = doc_folded.rfind(cand_folded, 0, search_end)
+        if idx == -1:
+            return None
+        start = folded_to_original[idx]
+        end = folded_to_original[idx + len(cand_folded) - 1] + 1
         text = doc_text[start:end]
         if "\n" not in text and "\r" not in text:
             return start, end, text

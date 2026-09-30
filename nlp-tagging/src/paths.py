@@ -26,12 +26,17 @@ STATEMENTS_JSON_PATH = OUTPUTS_DIR / "statements.json"
 DOC_TXT_PATH = OUTPUTS_DIR / "document.txt"
 DOC_ANN_PATH = ANNOTATIONS_DIR / "document.ann"
 DOC_DEONTIC_LABEL_ANN_PATH = ANNOTATIONS_DIR / "document_deontic_label.ann"
+DEONTIC_LITERAL_ANN_PATH = ANNOTATIONS_DIR / "deontic_literal.ann"
 ATTR_EXPLICIT_ANN_PATH = ANNOTATIONS_DIR / "attributes_explicit.ann"
 ATTR_NORMALIZED_ANN_PATH = ANNOTATIONS_DIR / "attributes_normalized.ann"
 UNMATCHED_CSV_PATH = REVIEW_DIR / "unmatched.csv"
 UNMATCHED_STATEMENTS_CSV_PATH = REVIEW_DIR / "unmatched_statements.csv"
 UNMATCHED_DEONTIC_CSV_PATH = REVIEW_DIR / "unmatched_deontic.csv"
 ATTR_DIFF_CSV_PATH = REVIEW_DIR / "attribute_diff.csv"
+DEONTIC_DIFF_CSV_PATH = REVIEW_DIR / "deontic_diff.csv"
+OBJECTS_ANN_PATH = ANNOTATIONS_DIR / "objects.ann"
+UNRESOLVED_OBJECTS_CSV_PATH = REVIEW_DIR / "unresolved_objects.csv"
+TRAINING_LITERALS_ANN_PATH = ANNOTATIONS_DIR / "training_literals.ann"
 
 
 def ensure_outputs_dir():

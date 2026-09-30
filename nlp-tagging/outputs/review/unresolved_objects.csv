@@ -1,0 +1,290 @@
+stmt_no,column,value,reason
+1,Direct Object Property,cuyas emisiones contaminantes no superen niveles máximos literales a1 [OR] a2,no literal match
+8,Direct Object (Content),mismos procesos de análisis técnicos para homologación estandares vigentes,no literal match
+10,Direct Object (Content),Programa de incentivos de Reducción de Emisiones y de Eficiencia Energetica,no literal match
+13,Direct Object (Content),Programa de implementación de una zona de baja emisión en la RMS,no literal match
+13,Direct Object Property,que considere una restricción al ingreso de vehículos pesados con antigüedad superior a 12 años.,tagged but paired object did not match -- no PropertyOf link
+18,Direct Object (Content),Límites [Tabla III-7: Límites de emisión por cilindrada],statement span not found in document
+19,Direct Object (Content),establecimiento de marco normativo estandares eficiencia energética,no literal match
+19,Direct Object Property,parque vehicular,tagged but paired object did not match -- no PropertyOf link
+20,Direct Object (Content),estrategia de incentivos,no literal match
+20,Direct Object Property,para compra de vehiculos de cero y baja emisión,no literal match
+21,Direct Object (Content),cupo exclusivo de al menos 5% de las nuevas inscripciones,no literal match
+21,Direct Object Property,"para vehículos propulsados exclusivamente con electricidad, [AND] que excluyan el uso de combustibles fósiles, [AND] que cumplan los requisitos técnicos que defina el Ministerio de Transportes y Telecomunicaciones.",no literal match
+22,Direct Object (Content),su motor,no literal match
+23,Direct Object (Content),su motor,no literal match
+26,Direct Object (Content),"emisión continua de humo visible negro, gris [OR] azul",no literal match
+27,Direct Object (Content),emisión continuada por el tubo de escape por mas de 5 segundos,no literal match
+30,Direct Object (Content),Implementacion de Método de control de emisiones del número de partículas en la vía pública de vehiculos diesel,no literal match
+31,Direct Object (Content),desarrollo de instrumentos [AND] protocolos [AND] límites máximos permitidos,no literal match
+32,Direct Object (Content),revisión normas de ingreso de vehículos livianos y medianos,no literal match
+32,Direct Object Property,"para establecer la norma Euro 6 y la norma EPA equivalente, a partir de septiembre del 2020, para los vehículos que ingresen al parque vehicular",tagged but paired object did not match -- no PropertyOf link
+33,Direct Object Property,"con indicación de los niveles de emisiones de gases  obtenidos en el proceso de homologación que establece el D.S. N°54, de 1997, del Ministerio de Transportes y Telecomunicaciones, que deberá contemplar mecanismos para la difusión de la información a los consumidores.",no literal match
+34,Direct Object (Content),etiqueta mencionada (ART 17),no literal match
+38,Direct Object (Content),cumplimiento de la medida (ART 18),no literal match
+41,Direct Object (Content),Tabla III 8. Límites máximos de emisión provenientes del sistema de escape en gramos por kilowatt hora (g/kWh) y en gramos por caballos de fuerza al freno hora (g/bhp-h),statement span not found in document
+42,Direct Object (Content),Tabla III-9: Límites máximos de emisión provenientes del sistema de escape en gramos por kilowatt hora (g/kWh) y en gramos por caballos de fuerza al freno hora (g/bhp-h) [OR] Tabla III-10: Límites máximos de emisión provenientes del sistema de escape en gramos por kilowatt hora (g/kWh),statement span not found in document
+43,Direct Object (Content),"certificado de origen sobre tipo o familia de motor de la maquinaria nueva cumple con lo exigido (T 8, 9 o 10)",statement span not found in document
+43,Indirect Object (Content),Superintendencia del Medio Ambiente,statement span not found in document
+45,Direct Object (Content),Requisitos para el combustible diésel tipo grado A1. Tabla IV-1,statement span not found in document
+47,Direct Object (Content),Requisitos de propiedades de gasolina para motores de ignición. Tabla IV-2,statement span not found in document
+54,Direct Object (Content),exigencia ART. 22,no literal match
+55,Direct Object (Content),la no aplicación de la exigencia de biocombustible,no literal match
+55,Direct Object Property,al combustible utilizado en pruebas experimentales temporales(art 22),no literal match
+56,Direct Object (Content),dicho combustible,no literal match
+57,Direct Object (Content),Requisitos para petróleos combustibles grado 5 y 6 para uso en calderas y hornos de procesos industriales. Tabla IV-3,statement span not found in document
+59,Direct Object (Content),Requisitos para el kerosene doméstico e industrial Tabla IV 4,statement span not found in document
+61,Direct Object (Content),Requisitos para el gas licuado de petróleo de uso vehicular. Tabla IV-5,statement span not found in document
+63,Direct Object (Content),"Requisitos para el gas licuado de petróleo de uso doméstico, industrial y comercial. Tabla IV-6",statement span not found in document
+66,Direct Object (Content),el cumplimiento de la calidad de los combustibles lÍquidos [AND] gaseosos,no literal match
+67,Direct Object (Content),la calidad de los combustibles lÍquidos [AND] gaseosos,no literal match
+68,Direct Object (Content),control de calidad,no literal match
+68,Direct Object Property,diectamente [OR] mediante laboratorios especialmente contratados para este efecto,no literal match
+69,Direct Object Property,propiedades de las combustibles que se expenden o distribuyan RMS,no literal match
+74,Direct Object (Content),elementos permitan capturar vapores durante operaciones,no literal match
+75,Direct Object (Content),de equipos de captura y porterior recuperación/ eliminación de vapores,no literal match
+76,Direct Object (Content),equipos que recurpere / elimine 95% vapores,no literal match
+79,Direct Object (Content),sistemas de recuperación de vapor,statement span not found in document
+79,Direct Object Property,que aseguren captura de 90% de vapores desplazados,statement span not found in document
+81,Direct Object (Content),exigencias DS 160/2008,no literal match
+82,Direct Object (Content),de equipos de captura y posterior recuperación de vapor [AND] elementos necesarios para una eficiente operación,no literal match
+84,Direct Object (Content),"informe que de cuenta del cumplimiento de las disposiciones contenidas y  medidas que se adoptarán si fuese necesario,",no literal match
+85,Direct Object Property,"donde se identifiquen tanques de almacenamiento, camiones y estaciones de servicio, [AND]  su nivel de actividad y el estado de cumplimiento de la implementación [AND]  eficiencia de los sistemas de recuperación de vapores.",no literal match
+86,Direct Object (Content),diagnóstico [AND] rediseño del sistema de fiscalización,no literal match
+87,Direct Object (Content),envio informe anual de cumplimiento de todas las exigencias relacionadas con la recuperación de vapores,statement span not found in document
+87,Indirect Object (Content),Secretaría Regional Ministerial del Medio Ambiente de la RM  [AND] Superintendencia de Medio Ambiente,statement span not found in document
+89,Direct Object Property,para registro de todos los componentes de la cadena de distribución de combustibles,no literal match
+91,Direct Object (Content),Límite máximo de emisión de MP para fuentes estacionarias Tabla VI 1,statement span not found in document
+92,Direct Object (Content),Límite máximo de emisión de MP para fuentes estacionarias Tabla VI 1,no literal match
+93,Direct Object (Content),Límite máximo de emisión de MP para fuentes estacionarias Tabla VI 1,no literal match
+94,Direct Object (Content),Límite máximo de emisión de MP para fuentes estacionarias Tabla VI 1,no literal match
+95,Direct Object (Content),excepciones temporales,no literal match
+96,Direct Object (Content),normas de emisión por conceptración del DS 13/2011,no literal match
+97,Direct Object (Content),limite de emisión para MP en 30 mg/m³N,no literal match
+98,Direct Object Property,de energía eléctrica o mécanica y calor producido,no literal match
+99,Direct Object (Content),condicion (art 37),no literal match
+99,Indirect Object (Content),SEC,no literal match
+100,Direct Object (Content),listado de aquellas calderas que cumplan con lo establecido en art 37,no literal match
+100,Indirect Object (Content),MMA,no literal match
+101,Direct Object (Content),Límite máximo de emisión de SO para fuentes estacionarias. Tabla VI-2,statement span not found in document
+102,Direct Object (Content),Límite máximo de emisión de SO para fuentes estacionarias. Tabla VI-2,no literal match
+103,Direct Object (Content),Límite máximo de emisión de SO para fuentes estacionarias. Tabla VI-2,no literal match
+106,Direct Object (Content),Límite máximo de emisión de SO para fuentes estacionarias. Tabla VI-2,no literal match
+107,Direct Object (Content),Límite máximo de emisión de SO para fuentes estacionarias. Tabla VI-2,no literal match
+108,Direct Object (Content),evaluación del cumplimiento de las metas de emisión de 5 establecimientos,statement span not found in document
+108,Direct Object Property,de acuerdo a registros y/o mediciones oficiales efectuados con posterioridad a la entrada en vigencia de ese Decreto.,statement span not found in document
+109,Direct Object (Content),resultados de evaluación del cumplimiento de las metas de emisión de 5 establecimientos,no literal match
+110,Direct Object (Content),Límite máximo de emisión de CO para fuentes estacionarias. Tabla VI-3,statement span not found in document
+112,Direct Object (Content),Límite máximo de emisión de CO para fuentes estacionarias. Tabla VI-3,no literal match
+113,Direct Object (Content),Límite máximo de emisión de CO para fuentes estacionarias. Tabla VI-3,no literal match
+114,Direct Object (Content),Límite máximo de emisión de NOx para fuentes estacionarias. Tabla VI 4,statement span not found in document
+116,Direct Object (Content),modalidad del proceso a ser usado [AND]  procedimiento para determinar equivalencia en terminos de emisión por chimenea,no literal match
+122,Direct Object (Content),certificado de origen del fabricante que,no literal match
+122,Direct Object Property,que indique que la caldera cumple lo establecido en el presente Decreto.,tagged but paired object did not match -- no PropertyOf link
+123,Direct Object (Content),registro de fuentes estacionarias de RMS,no literal match
+125,Indirect Object (Content),Superintendencia del Medio Ambiente,no literal match
+126,Direct Object (Content),cambios de combustible u otra condicion que incida en emisiones,no literal match
+129,Direct Object (Content),que no supera parámetros,no literal match
+130,Direct Object (Content),mediciones con frecuencia descrita Tabla VI-7: Frecuencia de Medición,statement span not found in document
+131,Direct Object (Content),emisiones MP NOx So,statement span not found in document
+133,Direct Object (Content),instrumentación industrial,no literal match
+135,Direct Object (Content),medidas en los gases de combustion que permitan estimar nivel de actividad de la fuente y sus emisiones,no literal match
+137,Direct Object (Content),instrumentación,no literal match
+138,Direct Object (Content),instrumentación,no literal match
+140,Direct Object (Content),sistema de monitoreo continuo,no literal match
+141,Direct Object (Content),acreditacion de emisiones con metodos de Art 46,no literal match
+144,Direct Object (Content),valores,no literal match
+145,Direct Object (Content),datos del monitoreo continuo,no literal match
+146,Direct Object (Content),protocolos cumplimiento art (54),no literal match
+156,Direct Object (Content),emisión másica superior a la autorizada vigente,no literal match
+157,Direct Object (Content),procesos existentes con concentraciones máximas Tabla VI-11: Emisiones tope por contaminante para grandes establecimientos existentes.,statement span not found in document
+158,Direct Object (Content),Tabla VI-12: Límites máximos de emisión complementarios para fuentes estacionarias de grandes establecimientos existentes],statement span not found in document
+158,Direct Object Property,"en reemplazo de los establecidos en los artículos 36, 37, 38, 40 y 41",statement span not found in document
+161,Direct Object (Content),listado de grandes establecimeintos nuevos y existentes,no literal match
+163,Direct Object (Content),planes de reducción de emisiones,no literal match
+164,Direct Object (Content),aprobación e planes,no literal match
+165,Direct Object (Content),criterios de evaluación  indicados en los Artículos 63 y siguientes.,no literal match
+166,Direct Object (Content),normas de emisión por concentración Art.58,no literal match
+169,Direct Object (Content),situación registrada repecto al cumplimiento de su emisión y compensación,no literal match
+174,Direct Object (Content),programas de compensación de emisiones,no literal match
+176,Direct Object (Content),emisiones,statement span not found in document
+177,Direct Object (Content),emisiones cedidas,statement span not found in document
+177,Direct Object Property,por actividades o establecimientos que cierren o deban cerrar por incumplimiento de normativa ambiental o por término de vida útil,statement span not found in document
+178,Direct Object (Content),emisiones por reduccion adicionales,statement span not found in document
+179,Direct Object (Content),"entre diversos tipos de fuentes, actividades [and] sectores economicos",statement span not found in document
+181,Direct Object (Content),emisiones de las modificaciones o ampliaciones,no literal match
+181,Direct Object Property,a las anteriores que forman parte del proyecto,tagged but paired object did not match -- no PropertyOf link
+184,Direct Object (Content),condiciones Tabla VI-14: Emisión máxima proyectos,statement span not found in document
+185,Direct Object (Content),"estimación de sus emisiones de contaminantes [AND]  la metodología utilizada, [AND] la cantidad de emisiones a compensar por contaminante [AND]  un anexo con la memoria de cálculo",no literal match
+186,Direct Object (Content),programa preliminar de compensaciones de emisiones,no literal match
+188,Direct Object (Content),la obligación de compensar emisiones [AND] los montos por los que se deberá realizar,no literal match
+191,Direct Object (Content),estudio de emisiones COV,no literal match
+192,Direct Object (Content),"limites máximos de emision de CO, HC, HCNM, NOx MP",statement span not found in document
+193,Direct Object (Content),"Límites máximos de emisión para grupos electrógenos en gramos por kilowatt hora (g/kWh) [AND] y en gramos por caballos de fuerza al freno hora (g/bhp-h), para desplazamiento volumétrico por cilindro del motor menor a 10 litros.  Tabla VI-15 [AND] Límites máximos de emisión para grupos electrógenos en gramos por kilowatt hora (g/kWh) para desplazamiento volumétrico por cilindro del motor mayor o igual a 10 litros y menor a 30 litros.Tabla VI-16 [AND] Tabla VI-17: Límites máximos de emisión para grupos electrógenos en gramos por kilowatt hora (g/kWh) [AND]  y en gramos por caballos de fuerza al freno hora (g/bhp-h) para desplazamiento volumétrico por cilindro del motor mayor o igual a 30 litros",statement span not found in document
+194,Direct Object (Content),"Límites máximos de emisión para grupos electrógenos en gramos por kilowatt hora (g/kWh) [AND] y en gramos por caballos de fuerza al freno hora (g/bhp-h), para desplazamiento volumétrico por cilindro del motor menor a 10 litros.  Tabla VI-15 [AND] Límites máximos de emisión para grupos electrógenos en gramos por kilowatt hora (g/kWh) para desplazamiento volumétrico por cilindro del motor mayor o igual a 10 litros y menor a 30 litros.Tabla VI-16 [AND] Tabla VI-17: Límites máximos de emisión para grupos electrógenos en gramos por kilowatt hora (g/kWh) [AND]  y en gramos por caballos de fuerza al freno hora (g/bhp-h) para desplazamiento volumétrico por cilindro del motor mayor o igual a 30 litros",statement span not found in document
+195,Direct Object Property,tipo o familia de grupo electrógneo nuevo cumple con lo exigido con Tablas,no literal match
+196,Direct Object (Content),certificado de origen,no literal match
+196,Direct Object Property,tipo o familia de grupo electrógneo nuevo cumple con lo exigido con Tablas,no literal match
+197,Direct Object (Content),protocolo para el desarrollo de la medición,no literal match
+199,Direct Object (Content),mantenciones al motor y todos sus componentes,statement span not found in document
+202,Direct Object (Content),medidas para reducir emisiones de amoniaco,no literal match
+203,Direct Object (Content),reducciones,statement span not found in document
+205,Direct Object (Content),plan de cumplimiento de exigencia art 70,no literal match
+205,Direct Object Property,incluirá una línea base de emisiones y una estimación de la reducción de emisiones,tagged but paired object did not match -- no PropertyOf link
+206,Direct Object (Content),plan de cumplimiento exigencia,no literal match
+207,Direct Object (Content),sistemas de limpieza al interior de los pabellones [OR] alojamiento de los animales,no literal match
+207,Direct Object Property,"1) Sistema pit, o",tagged but paired object did not match -- no PropertyOf link
+207,Direct Object Property,"2) Sistema flushing, o",tagged but paired object cell empty in Excel -- no PropertyOf link
+207,Direct Object Property,3) Deep Bedding.,tagged but paired object cell empty in Excel -- no PropertyOf link
+208,Direct Object (Content),cubiertas,statement span not found in document
+208,Direct Object Property,que eviten el movimiento del aire sobre la superficie  del purín,statement span not found in document
+209,Direct Object (Content),acciones de aseguramiento de buen manejo guano,no literal match
+209,Direct Object Property,de las aves al interior y exterior de los planteles,tagged but paired object did not match -- no PropertyOf link
+212,Direct Object (Content),retiro guano,no literal match
+212,Direct Object Property,acumulado al exterior del galpón y dentro del perímetro del plantel.,tagged but paired object did not match -- no PropertyOf link
+215,Direct Object (Content),retiro guano,no literal match
+215,Direct Object Property,acumulado al exterior del galpón y dentro del perímetro del plantel.,no literal match
+216,Direct Object (Content),guano del plantel,no literal match
+218,Direct Object (Content),retiro guano,no literal match
+218,Direct Object Property,acumulado al exterior del galpón y dentro del perímetro del plantel.,tagged but paired object did not match -- no PropertyOf link
+219,Direct Object Property,"registro del periodo de cada actividad que contenga el deatlle de las acciones del transporte , acopio y aplicación del guano",no literal match
+221,Direct Object (Content),calderas de calefacción de uso domiciliario [AND] calefactores [AND] cocinas,no literal match
+221,Direct Object Property,"utilicen o puedan utilizar leña, carbón vegetal y otros derivados de la madera",tagged but paired object did not match -- no PropertyOf link
+223,Direct Object (Content),medida art 74,no literal match
+223,Direct Object Property,ZONA A uso de artefactos a pellet madera y prohibido uso de calderas de calefaccion de uso domiciliario,no literal match
+224,Direct Object (Content),calefactores nuevos que incumplan limite art 83,no literal match
+225,Direct Object (Content),medida art 75,no literal match
+228,Direct Object (Content),salamandras [AND] braseros [AND] chimeneas de hogar abierto [AND] calefactores hechizos u otros artefactos similares,no literal match
+228,Direct Object Property,"que utilicen o puedan utilizar leña, carbón vegetal y otros derivados de la madera",tagged but paired object did not match -- no PropertyOf link
+229,Direct Object (Content),medida art 77,no literal match
+230,Direct Object (Content),calefactores,statement span not found in document
+230,Direct Object Property,"que utilicen o puedan utilizar leña, carbón vegetal y otros derivados de la madera",statement span not found in document
+231,Direct Object Property,"que utilicen o puedan utilizar leña, carbón vegetal y otros derivados de la madera",no literal match
+232,Direct Object (Content),medida ART 78,no literal match
+233,Direct Object Property,"que utilicen o puedan utilizar leña, carbón vegetal y otros derivados de la madera",no literal match
+234,Direct Object (Content),medida ART 78,no literal match
+236,Direct Object (Content),medida ART 79,no literal match
+239,Direct Object (Content),catastro de parrillas [AND] hornos de barro [AND] carros ambulantes para uso comercial,no literal match
+239,Direct Object Property,"que utilicen leña, carbón vegetal y otros derivados de la madera en la zona sujeta al plan",tagged but paired object did not match -- no PropertyOf link
+240,Direct Object (Content),"retiro, recambio [AND] chatarrizacion de calefactores",no literal match
+240,Direct Object Property,"que utilicen o puedan utilizar leña, carbón vegetal y otros derivados de la madera",tagged but paired object did not match -- no PropertyOf link
+241,Direct Object (Content),calefactores nuevos a leña [AND]  pellet de madera,statement span not found in document
+241,Direct Object Property,que posean emisiones de MP según Tabla VII-1 Emisión de calefactores,statement span not found in document
+242,Direct Object (Content),calefactores nuevos a leña [AND]  pellet de madera,statement span not found in document
+243,Direct Object (Content),límites de emisión ART 83,no literal match
+244,Direct Object (Content),incumplimiento art 83,no literal match
+246,Direct Object (Content),listado de calefactores a leña y pellet de madera que cumplan con la norma de emision art 83,no literal match
+247,Direct Object (Content),informacion para consumidores acerca de las restricciones de uso de calefactores que los afectan,no literal match
+254,Direct Object Property,para acondicionamiento térmico de viviendas que utilicen leña para calefección,no literal match
+255,Direct Object (Content),estandares técnicos para el acondicionamiento,no literal match
+257,Direct Object (Content),estudio para diseño de viviendas de baja demanda térmica,no literal match
+257,Direct Object Property,en la Región Metropolitana de Santiago.,tagged but paired object did not match -- no PropertyOf link
+259,Direct Object (Content),estudio que evalúe las mejores alternativas disponibles para la generacion de proyectos de vivienda y calefaccion sustentable,no literal match
+259,Direct Object Property,en la Región Metropolitana de Santiago.,tagged but paired object did not match -- no PropertyOf link
+261,Direct Object (Content),resultados del estudio,no literal match
+261,Direct Object Property,en los programas de vivienda,tagged but paired object did not match -- no PropertyOf link
+262,Direct Object (Content),informe de pre-factibilidad sobre creación de un sistema de certificación de emisiones y/o etiquetado de emisiones y eficiencia energética,no literal match
+262,Direct Object Property,para equipos de calefacción que utilicen gas o kerosene,tagged but paired object did not match -- no PropertyOf link
+264,Direct Object (Content),canales que permitan ir mejorando especificaciones técnicas de los artefactos que se vendan en el mercado,no literal match
+267,Direct Object (Content),esquemas de incentivos la transferencia tecnológica [AND] esquemas tarifarios especialmente concebidos para la promoción de energías y tecnologías con el menor impacto ambiental.,statement span not found in document
+268,Direct Object (Content),hojas secas y todo tipo de residuos,no literal match
+269,Direct Object (Content),fuego,statement span not found in document
+269,Direct Object Property,"parar quema de rastrojos y cualquier tipo de vegetación viva o muerta en terrenos agricolas, ganaderos o forestal",statement span not found in document
+270,Direct Object (Content),medida ART 95 y 96,no literal match
+273,Direct Object (Content),programa de minimización de quemas agricolas,no literal match
+273,Direct Object Property,"generando alternativas a dicha práctica,",tagged but paired object did not match -- no PropertyOf link
+274,Direct Object (Content),programa de minimización de quemas agricolas,no literal match
+274,Direct Object Property,"a) Caracterizar las actividades agrícolas asociadas al uso del fuego y definición de alternativas para el manejo de residuos agrícolas y preparación de suelos[and] b) Programa de educación y difusión de buenas prácticas agrícolas, con énfasis en la erradicación del uso del fuego. [and] c) Programa de fiscalización y asistencia dirigido a agricultores, ganaderos y silvicultores, en el que se apoye el uso de alternativas al fuego.",no literal match
+276,Direct Object (Content),aprobación recursos del FNDR u otras fuentes de financiamiento,no literal match
+277,Direct Object (Content),programa gestión de áreas verdes,statement span not found in document
+277,Direct Object Property,habilitación prioritaria de áreas verdes y espacios públicos en aquellas comunas más deficitarias en este tipo de áreas y espacios,statement span not found in document
+278,Direct Object (Content),programa para gestión de masas de vegetación,no literal match
+279,Direct Object (Content),aumento areas verdes,no literal match
+280,Direct Object (Content),"sistema oficial, actualizado y público de áreas verdes urbanas",no literal match
+280,Direct Object Property,"incluyendo su ubicación referenciadas geográficamente,",tagged but paired object did not match -- no PropertyOf link
+281,Direct Object (Content),obtención recursos,no literal match
+281,Direct Object Property,ampliando cobertura y utilizando tecnología certificada para recolección de polvo,no literal match
+282,Direct Object (Content),realización estudios de factibilidad técnica y economica,no literal match
+283,Direct Object (Content),recursos,statement span not found in document
+283,Direct Object Property,construccion de 300 kilométro de ciclorutas y 3000 biciestacionamientos públicos en elmarco del plan maestro de ciclovias del gran santiago,statement span not found in document
+284,Direct Object (Content),documentos MINVU,no literal match
+285,Direct Object (Content),Plan de desarrollo Intermodal RMS,no literal match
+285,Direct Object Property,"cuyo objetivo principal será mejorar la integración modal y la experiencia de transbordos en el sistema, con nueva infraestructura especializada, así como asegurar el acceso a los sistemas de transporte público.",tagged but paired object did not match -- no PropertyOf link
+287,Direct Object (Content),Municipio de Santiago,no literal match
+287,Direct Object Property,promoción de acciones para implementación de la zona verde para el transporte en STGO ZVTS iniciativa inscrita en NAMA acción de mitigación nacionalmente apropiada,no literal match
+288,Direct Object Property,"temas de emisión de gases efecto invernadero, sistema de medición, reporte y verificacion, facilitación de acceso a oportunidades de fondos disponibles en el marco del financiamiento del clima y promoción internacional",no literal match
+289,Direct Object (Content),cooperación técnica espcecializada en temas de transito y transporte,no literal match
+289,Direct Object Property,en el marco de la planificacion e implementación del proyecto ZVTS,tagged but paired object did not match -- no PropertyOf link
+290,Direct Object Property,"objetivo inciar el diseño, desarrollo e implementación de programas relalivos a la prevención y descontaminación atmosferica",no literal match
+291,Direct Object (Content),acciones que peuda desarrollar organismos de la sociedad civil,no literal match
+292,Direct Object (Content),Implementación programas  y acciones,no literal match
+293,Direct Object (Content),programas [AND] material de apoyo pedagogico de educación ambiental,no literal match
+293,Direct Object Property,en calidad de aire,no literal match
+294,Direct Object (Content),incorporar temas de prevención y descontaminación atmosférica de la RMS,no literal match
+296,Direct Object (Content),Plan capacitacion,no literal match
+296,Direct Object Property,"en creación/gestión/promoción y aplcación instrumentos de gestión ambiental local, con énfasis en la implementación de medidas establecidas en el presente Plan de Prevención y Descontaminación Atmosférica.",no literal match
+297,Direct Object (Content),programa capacitación y concientización,no literal match
+297,Direct Object Property,en materias calidad de aire y DA,no literal match
+297,Indirect Object (Content),miembros organizaciones de interes publico,no literal match
+298,Direct Object Property,sobre experiencias y resultados de la dimension ambiental,no literal match
+301,Direct Object (Content),incorporacion de contenidos  en páginas web instituciones públicas RMS,no literal match
+301,Direct Object Property,"referidos a temáticas de calidad del aire y descontaminación atmosférica,",tagged but paired object did not match -- no PropertyOf link
+302,Indirect Object (Content),municipios RMS,no literal match
+303,Direct Object (Content),Programa Integral Educación Energética,no literal match
+304,Direct Object (Content),niveles de emisión de equipos de calefacción,no literal match
+305,Direct Object Property,sobre calefaccion residencial,no literal match
+306,Direct Object (Content),Plan Operacional de Gestión de Episodios Críticos,statement span not found in document
+309,Direct Object (Content),Programa de Fiscalización POGEC,no literal match
+309,Direct Object Property,"entendido como el conjunto de acciones orientadas a la adecuada implementación de las medidas del Plan Operacional de GEC,",tagged but paired object did not match -- no PropertyOf link
+311,Direct Object (Content),información POGEC,no literal match
+313,Direct Object Property,medidas tendientes a agilizar viajes y compensar efectos de reduccion de oferta de transporte por restricción en GEC,no literal match
+314,Direct Object (Content),Implementación Plan de gestión de tránsito,no literal match
+315,Direct Object (Content),"prohibición de estacionamiento, sentidos y honorarios exclusivos",no literal match
+315,Direct Object Property,para uso de vías por el transporte público,no literal match
+316,Direct Object (Content),detalle de medidas consideradas,no literal match
+316,Indirect Object (Content),SEREMI del Medio Ambiente [AND] Intendente Regional,no literal match
+317,Direct Object (Content),restricción vehicular permanente,statement span not found in document
+318,Direct Object (Content),"fechas, horarios, zonas y perimetros especiales y excepciones",no literal match
+318,Direct Object Property,a la aplicación de esta medida.,tagged but paired object did not match -- no PropertyOf link
+319,Direct Object (Content),fiscalización DS N100/1990,no literal match
+319,Direct Object Property,establece prohibición de quemas agrícolas RMS,no literal match
+320,Direct Object (Content),fiscalización DS18/2001,no literal match
+320,Direct Object Property,establece prohibición de circulación de vehiculos de carga según antigüedad,no literal match
+321,Direct Object (Content),artefactos de calección,no literal match
+323,Direct Object (Content),medida de restricción vehicular,statement span not found in document
+324,Direct Object (Content),"fechas, horarios, zonas, perímetros, excepciones restricción",no literal match
+324,Direct Object Property,a la aplicación de esta medida.,tagged but paired object did not match -- no PropertyOf link
+326,Direct Object (Content),medida  de prohibición de artefactos de calefacción residencial que usen leña u otros derivados de la madera en la RMS,no literal match
+327,Direct Object (Content),modificación actividad física,no literal match
+327,Direct Object Property,"abordando objetivos de aprendizaje que impliquen menor desplazamiento, idealmente realizándolas bajo techo",tagged but paired object did not match -- no PropertyOf link
+329,Direct Object (Content),fiscalización,statement span not found in document
+333,Direct Object (Content),"fechas, horarios, zonas, corredores ambientales, perimetros especiales y excepciones",no literal match
+333,Direct Object Property,a la aplicación de esta medida,tagged but paired object did not match -- no PropertyOf link
+334,Direct Object (Content),establecimientos,statement span not found in document
+336,Direct Object (Content),medida de prohibición de artefactos de calefacción residencial que utilicen leña u derivados de la madera,no literal match
+337,Direct Object (Content),modificación de la actividad fisica en colegios,no literal match
+337,Direct Object Property,"abordando objetivos de aprendizaje que impliquen menor desplazamiento, idealmente realizándolas bajo techo.",tagged but paired object did not match -- no PropertyOf link
+338,Direct Object (Content),clases educación física,no literal match
+339,Direct Object (Content),fiscalización,statement span not found in document
+340,Direct Object (Content),programa aspirado y lavado de calles,no literal match
+342,Direct Object (Content),medidas de restriccion vehicular Tabla XII 3: Restricción Vehicular - Emergencia Ambiental,statement span not found in document
+343,Direct Object (Content),"fechas, horarios, zonas, corredores ambientales, perimetros especiales y excepciones",no literal match
+343,Direct Object Property,la aplicación de esta medida.,tagged but paired object did not match -- no PropertyOf link
+344,Direct Object (Content),establecimientos,statement span not found in document
+346,Direct Object (Content),medida de prohibición de artefactos de calefacción residencial que utilicen leña u derivados de la madera,no literal match
+347,Direct Object (Content),modificación de la actividad fisica en colegios,statement span not found in document
+347,Direct Object Property,"abordando objetivos de aprendizaje que impliquen menor desplazamiento, idealmente realizándolas bajo techo.",statement span not found in document
+348,Direct Object (Content),clases educación física,no literal match
+349,Direct Object (Content),fiscalización,statement span not found in document
+350,Direct Object (Content),programa aspirado y lavado de calles,no literal match
+352,Direct Object (Content),pronóstico de calidad del aire [AND] evolución condiciones de ventilación de la cuenca [AND] resultados del sistema de pronósticos de calidad del aire,no literal match
+354,Direct Object (Content),medidas de prevención/mitigación,no literal match
+355,Direct Object (Content),"situación preemergencia y emergencia para MP10 y MP2,5",no literal match
+356,Direct Object (Content),declaración episodio critico o adoptar medidas correspondientes a niveles menos estricto,no literal match
+357,Direct Object (Content),"situación de episodios e alterta, preemergencia y emergencia fuera POGEC",no literal match
+358,Direct Object (Content),medidas del PDDA,no literal match
+359,Direct Object (Content),estado de avance de las medidas PDDA,no literal match
+360,Direct Object (Content),estado de avance de las medidas PDDA,no literal match
+360,Indirect Object (Content),Superintendencia del Medio Ambiente,no literal match
+361,Direct Object (Content),informe de avance medidas del plan y fiscalización,no literal match
+362,Direct Object (Content),informe de avance medidas del plan y fiscalización,no literal match
