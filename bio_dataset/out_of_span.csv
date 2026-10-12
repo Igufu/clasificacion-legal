@@ -1,0 +1,71 @@
+stmt_no,label,ann_start,ann_end,stmt_start,stmt_end,text
+8,Attribute,61287,61292,62110,62242,buses
+16,Attribute,64435,64481,64606,64682,Ministerio de Transportes y Telecomunicaciones
+25,Attribute,67570,67627,67663,67762,Carabineros de Chile e inspectores fiscales y municipales
+29,Attribute,68306,68363,68365,68464,Carabineros de Chile e inspectores fiscales y municipales
+31,Attribute,68575,68672,68963,69118,el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones
+36,Attribute,70365,70460,70678,70909,"el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud"
+38,Attribute,70365,70460,71027,71192,"el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud"
+70,Attribute,79394,79415,79960,80174,Ministerio de Energía
+71,Attribute,79394,79415,80180,80351,Ministerio de Energía
+77,Attribute,81497,81547,81652,81894,equipos de recuperación y/o eliminación de vapores
+80,Attribute,82029,82072,82441,82508,tanques que almacenen combustibles líquidos
+88,Attribute,84368,84415,84789,84926,Superintendencia de Electricidad y Combustibles
+90,Attribute,84957,85004,85133,85266,Superintendencia de Electricidad y Combustibles
+98,Attribute,86368,86376,86744,86933,calderas
+99,Attribute,86368,86376,86939,87196,calderas
+104,Attribute,88061,88082,88172,88277,fuentes estacionarias
+107,Attribute,88457,88478,88744,88832,fuentes estacionarias
+109,Attribute,88928,88963,89343,89600,Superintendencia del Medio Ambiente
+112,Attribute,89944,89965,90108,90310,fuentes estacionarias
+113,Attribute,88457,88478,88745,88832,fuentes estacionarias
+115,Attribute,90554,90575,90826,91014,fuentes estacionarias
+116,Attribute,90978,91013,91015,91164,Superintendencia del Medio Ambiente
+117,Attribute,90554,90575,91172,91555,fuentes estacionarias
+120,Attribute,92378,92399,92563,92711,fuentes estacionarias
+120,DirectObjectProperty,90328,90340,92563,92711,de emisiones
+124,Attribute,93100,93135,93219,93382,Superintendencia del Medio Ambiente
+128,Attribute,93724,93745,94332,94448,fuentes estacionarias
+129,Attribute,93724,93745,94450,94575,fuentes estacionarias
+133,Attribute,95408,95442,95626,95808,calderas y procesos con combustión
+143,Attribute,96953,96987,97780,97926,calderas y procesos con combustión
+144,Attribute,96953,96987,97926,98044,calderas y procesos con combustión
+145,Attribute,96953,96987,98051,98258,calderas y procesos con combustión
+147,Attribute,96953,96987,98458,98646,calderas y procesos con combustión
+151,Attribute,99362,99386,99808,100036,grandes establecimientos
+152,Attribute,99362,99386,100036,100228,grandes establecimientos
+153,Attribute,99362,99386,100234,100395,grandes establecimientos
+156,Attribute,100699,100728,100928,101092,Ministerio del Medio Ambiente
+163,Attribute,103662,103687,103689,103782,SEREMI del Medio Ambiente
+164,Attribute,103662,103687,103782,103882,SEREMI del Medio Ambiente
+165,Attribute,103662,103687,103882,104155,SEREMI del Medio Ambiente
+166,Attribute,103662,103687,104161,104395,SEREMI del Medio Ambiente
+170,Attribute,105276,105311,105511,105616,Superintendencia del Medio Ambiente
+188,Attribute,114767,114792,114799,114953,SEREMI del Medio Ambiente
+189,Attribute,110165,110189,116007,116348,grandes establecimientos
+198,Attribute,120614,120646,121228,121366,titulares de grupos electrógenos
+200,Attribute,121390,121409,121716,122182,grupos electrógenos
+207,Attribute,123020,123041,123968,124284,planteles de porcinos
+211,Attribute,125174,125201,125462,125532,planteles de aves de corral
+212,Attribute,125174,125201,125533,125738,planteles de aves de corral
+214,Attribute,125747,125774,126003,126069,planteles de aves de corral
+215,Attribute,125747,125774,126069,126273,planteles de aves de corral
+217,Attribute,126283,126310,126450,126516,planteles de aves de corral
+218,Attribute,126283,126310,126516,126722,planteles de aves de corral
+240,Attribute,132155,132180,132895,133136,SEREMI del Medio Ambiente
+255,Attribute,137323,137357,137571,137637,Ministerio de Vivienda y Urbanismo
+256,Attribute,137323,137357,137637,137761,Ministerio de Vivienda y Urbanismo
+274,Attribute,142577,142602,142745,143200,Ministerio de Agricultura
+276,Attribute,143418,143461,143678,143806,Gobierno Regional Metropolitano de Santiago
+278,Attribute,143418,143461,144453,144874,Gobierno Regional Metropolitano de Santiago
+291,Attribute,150252,150370,150551,150637,"el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes"
+293,Attribute,150693,150763,150851,151229,la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM
+294,Attribute,150693,150763,151441,151593,la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM
+296,Attribute,151655,151680,151803,152090,SEREMI del Medio Ambiente
+297,Attribute,151655,151680,152096,152329,SEREMI del Medio Ambiente
+298,Attribute,151655,151680,152644,152867,SEREMI del Medio Ambiente
+300,Attribute,152928,152953,153076,153234,SEREMI del Medio Ambiente
+301,Attribute,152928,152953,153240,153466,SEREMI del Medio Ambiente
+314,Attribute,157335,157443,157746,158025,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM"
+315,Attribute,157335,157443,158031,158326,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM"
+316,Attribute,157335,157443,158332,158492,"Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM"

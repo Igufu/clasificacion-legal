@@ -732,3 +732,8 @@ R25	PropertyOf Arg1:T695 Arg2:T600
 R26	PropertyOf Arg1:T699 Arg2:T603
 R27	PropertyOf Arg1:T702 Arg2:T607
 R28	PropertyOf Arg1:T705 Arg2:T610
+
+2 arcos por statement
+sacar implícitos 
+visualización spacy y ver IG parser
+ver modelo

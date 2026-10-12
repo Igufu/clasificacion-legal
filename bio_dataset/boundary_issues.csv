@@ -1,0 +1,12 @@
+stmt_no,token,token_start,token_end,label,ann_start,ann_end
+13,Ambiente,63886,63894,Attribute,63796,63893
+19,normativo,65965,65974,Attribute,65720,65967
+28,fiscalizada,68290,68301,Deontic,68285,68300
+33,establecer,69673,69683,Deontic,69665,69682
+44,establecer,73470,73480,Deontic,73463,73479
+70,diésel,80041,80047,DirectObject,79997,80046
+115,las,90851,90854,Deontic,90839,90852
+147,implementar,98618,98629,Deontic,98617,98628
+155,informar,100736,100744,Deontic,100729,100743
+287,Telecomunicaciones,149173,149191,Attribute,149107,149190
+359,estará,171279,171285,Deontic,171281,171314
