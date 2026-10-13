@@ -1,0 +1,72 @@
+{
+  "source": "standoff_comp.ann",
+  "entities_before": {
+    "Attribute": 234,
+    "Deontic": 261,
+    "DirectObject": 117,
+    "IndirectObject": 34,
+    "DirectObjectProperty": 59,
+    "IndirectObjectProperty": 1
+  },
+  "entities_after": {
+    "Attribute": 234,
+    "Deontic": 261,
+    "DirectObject": 117
+  },
+  "relations_before": {
+    "PropertyOf": 28
+  },
+  "relations_after": {},
+  "dropped_relations": [
+    "R1 PropertyOf Arg1:T647 Arg2:T498",
+    "R2 PropertyOf Arg1:T649 Arg2:T500",
+    "R3 PropertyOf Arg1:T652 Arg2:T507",
+    "R4 PropertyOf Arg1:T653 Arg2:T533",
+    "R5 PropertyOf Arg1:T655 Arg2:T543",
+    "R6 PropertyOf Arg1:T657 Arg2:T560",
+    "R7 PropertyOf Arg1:T665 Arg2:T569",
+    "R8 PropertyOf Arg1:T667 Arg2:T570",
+    "R9 PropertyOf Arg1:T668 Arg2:T572",
+    "R10 PropertyOf Arg1:T670 Arg2:T576",
+    "R11 PropertyOf Arg1:T671 Arg2:T577",
+    "R12 PropertyOf Arg1:T706 Arg2:T633",
+    "R13 PropertyOf Arg1:T674 Arg2:T578",
+    "R14 PropertyOf Arg1:T675 Arg2:T580",
+    "R15 PropertyOf Arg1:T676 Arg2:T581",
+    "R16 PropertyOf Arg1:T677 Arg2:T582",
+    "R17 PropertyOf Arg1:T679 Arg2:T586",
+    "R18 PropertyOf Arg1:T681 Arg2:T587",
+    "R19 PropertyOf Arg1:T684 Arg2:T589",
+    "R20 PropertyOf Arg1:T685 Arg2:T590",
+    "R21 PropertyOf Arg1:T686 Arg2:T591",
+    "R22 PropertyOf Arg1:T688 Arg2:T592",
+    "R23 PropertyOf Arg1:T691 Arg2:T593",
+    "R24 PropertyOf Arg1:T693 Arg2:T599",
+    "R25 PropertyOf Arg1:T695 Arg2:T600",
+    "R26 PropertyOf Arg1:T699 Arg2:T603",
+    "R27 PropertyOf Arg1:T702 Arg2:T607",
+    "R28 PropertyOf Arg1:T705 Arg2:T610"
+  ],
+  "skipped_non_brat_lines": [
+    {
+      "line": 735,
+      "text": ""
+    },
+    {
+      "line": 736,
+      "text": "2 arcos por statement"
+    },
+    {
+      "line": 737,
+      "text": "sacar implícitos "
+    },
+    {
+      "line": 738,
+      "text": "visualización spacy y ver IG parser"
+    },
+    {
+      "line": 739,
+      "text": "ver modelo"
+    }
+  ]
+}
