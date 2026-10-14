@@ -16,8 +16,6 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-from spacy import displacy
-
 ROOT = Path(__file__).resolve().parents[1]
 ANN = ROOT / "data" / "triples.ann"
 TXT = ROOT / "data" / "triples.txt"
@@ -100,14 +98,47 @@ def span_key(t):
     return (t["type"], t["start"], t["end"])
 
 
-def render_event_arcs(ev, terms):
-    """Displacy manual-dep diagram with short T# labels.
+# --- Custom arc-diagram renderer -------------------------------------------
+# Hand-rolled SVG instead of spaCy displacy so we can: show the full raw text
+# as the pseudo-token (wrapping onto multiple lines), make per-token boxes
+# variable width, draw round cubic-bezier arcs that scale with span distance,
+# and label each token with "T# · Role" in grey below the box.
 
-    Pseudo-tokens are kept narrow (text = T#, tag = role) so displacy's
-    fixed-distance arcs never collide the way they did when the token text
-    was the full attribute span. Reading order follows the source offsets so
-    the arcs match the way the sentence actually unfolds.
-    """
+_CHAR_W      = 7.2    # ≈ Inter 13px avg char width
+_TAG_CHAR_W  = 6.4    # Inter 11px
+_LINE_H      = 18
+_TAG_LINE_H  = 14
+_TAG_GAP     = 6
+_BOX_PAD_X   = 12
+_BOX_PAD_Y   = 7
+_TOKEN_GAP   = 32
+_ARC_BASE_H  = 36
+_ARC_PER_HOP = 22
+_MAX_CHARS   = 32     # wrap target per visual line inside a token
+
+
+def _wrap(text, max_chars=_MAX_CHARS):
+    """Greedy word-wrap. Collapses whitespace first so brat newlines don't
+    create empty lines."""
+    tokens = " ".join(text.split()).split(" ")
+    lines, cur, cur_len = [], [], 0
+    for w in tokens:
+        projected = cur_len + (1 if cur else 0) + len(w)
+        if cur and projected > max_chars:
+            lines.append(" ".join(cur))
+            cur, cur_len = [w], len(w)
+        else:
+            cur.append(w)
+            cur_len = projected
+    if cur:
+        lines.append(" ".join(cur))
+    return lines or [""]
+
+
+def render_event_arcs(ev, terms):
+    """Build an SVG with one rounded box per role (full text, multi-line),
+    a grey "T# · Role" caption below, and round bezier arcs from the trigger
+    to each other role."""
     present = []
     for role, tids in ev["roles"].items():
         for tid in tids:
@@ -116,30 +147,122 @@ def render_event_arcs(ev, terms):
                 continue
             present.append((role, tid, t))
     present.sort(key=lambda rti: (rti[2]["start"], rti[2]["end"]))
+    if not present:
+        return ""
 
-    words = [{"text": tid, "tag": display_role(role)}
-             for role, tid, _ in present]
+    # Lay out token boxes side by side.
+    tokens = []
+    x = _BOX_PAD_X
+    for role, tid, t in present:
+        role_disp = display_role(role)
+        lines = _wrap(t["text"])
+        tag = f"{tid} · {role_disp}"
+        text_w = max(len(ln) for ln in lines) * _CHAR_W
+        tag_w = len(tag) * _TAG_CHAR_W
+        box_w = max(text_w, tag_w) + 2 * _BOX_PAD_X
+        tokens.append({
+            "tid": tid, "role": role, "role_disp": role_disp,
+            "lines": lines, "tag": tag,
+            "left_x": x, "box_w": box_w,
+            "center_x": x + box_w / 2,
+            "is_trigger": tid == ev["trigger_tid"],
+        })
+        x += box_w + _TOKEN_GAP
+    total_w = x - _TOKEN_GAP + _BOX_PAD_X
 
-    trigger_idx = next((i for i, (_, tid, _) in enumerate(present)
-                        if tid == ev["trigger_tid"]), None)
+    # Trigger-rooted arcs (left/right of the trigger).
+    trigger_idx = next((i for i, tk in enumerate(tokens)
+                        if tk["is_trigger"]), None)
     arcs = []
     if trigger_idx is not None:
-        for i, (role, _, _) in enumerate(present):
+        for i, tk in enumerate(tokens):
             if i == trigger_idx:
                 continue
             lo, hi = sorted([trigger_idx, i])
-            arcs.append({"start": lo, "end": hi,
-                         "label": display_role(role),
-                         "dir": "right" if i > trigger_idx else "left"})
+            hops = hi - lo
+            arcs.append({"lo": lo, "hi": hi,
+                         "dest": i,
+                         "label": tk["role_disp"],
+                         "h": _ARC_BASE_H + (hops - 1) * _ARC_PER_HOP})
+    max_arc_h = max((a["h"] for a in arcs), default=0)
 
-    svg = displacy.render(
-        {"words": words, "arcs": arcs},
-        style="dep", manual=True, page=False,
-        options={"compact": True, "distance": 110,
-                 "color": "#333", "bg": "transparent",
-                 "font": "Inter, system-ui, sans-serif"},
-    )
-    return f'<div class="arc-view">{svg}</div>'
+    # Vertical layout: arcs on top, token boxes below, grey tag under box.
+    arc_top_pad = 20
+    box_top_y = arc_top_pad + max_arc_h + 6
+    max_lines = max(len(tk["lines"]) for tk in tokens)
+    box_h = max_lines * _LINE_H + 2 * _BOX_PAD_Y
+    tag_y = box_top_y + box_h + _TAG_GAP + _TAG_LINE_H - 4
+    svg_h = tag_y + 8
+
+    out = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'xmlns:xlink="http://www.w3.org/1999/xlink" '
+        f'viewBox="0 0 {total_w:.0f} {svg_h:.0f}" '
+        f'width="{total_w:.0f}" height="{svg_h:.0f}" '
+        f'class="arc-svg" font-family="Inter, system-ui, sans-serif" '
+        f'font-size="13">'
+    ]
+
+    # Arcs (behind boxes).
+    arc_anchor_y = box_top_y  # arcs land on the top edge of each box
+    for ai, arc in enumerate(arcs):
+        x1 = tokens[arc["lo"]]["center_x"]
+        x2 = tokens[arc["hi"]]["center_x"]
+        y_top = arc_anchor_y - arc["h"]
+        path_id = f'arc-{ev["id"]}-{ai}'
+        d = (f"M {x1:.1f},{arc_anchor_y:.1f} "
+             f"C {x1:.1f},{y_top:.1f} {x2:.1f},{y_top:.1f} "
+             f"{x2:.1f},{arc_anchor_y:.1f}")
+        out.append(
+            f'<path id="{path_id}" d="{d}" fill="none" '
+            f'stroke="#9a9a9a" stroke-width="1.4"/>'
+        )
+        # Arrowhead at destination end only.
+        dest_x = tokens[arc["dest"]]["center_x"]
+        out.append(
+            f'<path d="M {dest_x:.1f},{arc_anchor_y:.1f} '
+            f'l -4,-7 l 8,0 z" fill="#9a9a9a"/>'
+        )
+        out.append(
+            f'<text font-size="11" fill="#555">'
+            f'<textPath xlink:href="#{path_id}" startOffset="50%" '
+            f'text-anchor="middle" side="left">'
+            f'{html.escape(arc["label"])}</textPath></text>'
+        )
+
+    # Token boxes + text.
+    for tk in tokens:
+        fill = role_color(tk["role"])
+        stroke = "rgba(0,0,0,.35)" if tk["is_trigger"] else "rgba(0,0,0,.1)"
+        stroke_w = 1.5 if tk["is_trigger"] else 1
+        out.append(
+            f'<rect x="{tk["left_x"]:.1f}" y="{box_top_y:.1f}" '
+            f'width="{tk["box_w"]:.1f}" height="{box_h:.1f}" '
+            f'rx="6" ry="6" fill="{fill}" fill-opacity=".55" '
+            f'stroke="{stroke}" stroke-width="{stroke_w}"/>'
+        )
+        # Center the lines vertically within the box.
+        text_block_h = len(tk["lines"]) * _LINE_H
+        first_baseline = (box_top_y + (box_h - text_block_h) / 2
+                          + _LINE_H - 5)
+        out.append(f'<text text-anchor="middle" fill="#1b1b1b">')
+        for li, line in enumerate(tk["lines"]):
+            y = first_baseline + li * _LINE_H
+            out.append(
+                f'<tspan x="{tk["center_x"]:.1f}" y="{y:.1f}">'
+                f'{html.escape(line)}</tspan>'
+            )
+        out.append('</text>')
+        # Grey T# · Role caption underneath.
+        out.append(
+            f'<text text-anchor="middle" font-size="11" '
+            f'fill="#7a7a7a" font-family="ui-monospace, monospace" '
+            f'x="{tk["center_x"]:.1f}" y="{tag_y:.1f}">'
+            f'{html.escape(tk["tag"])}</text>'
+        )
+
+    out.append('</svg>')
+    return f'<div class="arc-view">{"".join(out)}</div>'
 
 
 def render_event_card(ev, terms, span_to_events):
@@ -325,12 +448,10 @@ HTML_SHELL = """<!doctype html>
                         font-family: Inter, sans-serif; font-style: italic; }}
   .row-text {{ font-size: 14px; word-wrap: break-word; }}
 
-  /* Displacy manual-dep arc diagram, embedded per card. */
-  .arc-view {{ margin: .25rem 0 .5rem; overflow-x: auto; }}
-  .arc-view svg {{ max-width: 100%; height: auto; display: block; }}
-  .arc-view .displacy-token tspan {{ font-size: 13px; }}
-  .arc-view .displacy-tag {{ font-size: 11px; fill: #777; }}
-  .arc-view .displacy-label {{ font-size: 11px; fill: #555; }}
+  /* Per-event arc diagram (hand-rolled SVG). */
+  .arc-view {{ margin: .5rem 0 .75rem; overflow-x: auto;
+               padding-bottom: 4px; }}
+  .arc-view svg.arc-svg {{ display: block; }}
 
   /* --- Annotated-text view --- */
   .passage {{ line-height: 2.3; font-size: 15px;
@@ -348,9 +469,7 @@ HTML_SHELL = """<!doctype html>
 </style></head><body>
 <h1>Triples — DTO-31_24</h1>
 <p class="muted">{n_events} events · {n_terms} T-spans · text sliced from Capítulo III</p>
-<div class="legend">{legend}
-  <span class="chip" style="background:#eee">superscript E# = event membership</span>
-</div>
+<div class="legend">{legend}</div>
 
 <h2>Per-event cards <span class="muted">({n_events})</span></h2>
 {cards}
