@@ -1,14 +1,10 @@
-"""Render triples.ann as per-event cards + inline-highlighted text.
+"""Render triples.ann as per-event arc diagrams + detail rows + inline text.
 
-Replaces the old spaCy displacy views, which produced two artifacts: the dep
-view overlapped tokens whenever an Attribute span was longer than displacy's
-fixed arc distance, and the span view truncated / overlapped type labels on
-narrow spans (e.g. "DirectObjec Deontic"). Both views are now custom
-HTML/CSS, so sizing is deterministic.
+Each event is shown as a displacy manual-dep arc diagram at the top of its
+card, with the full text in rows underneath. The arc view uses short labels
+(T#) so arcs never collide with their pseudo-tokens; the full literal text
+lives below in detail rows (where line wrapping handles any length).
 
-- Per-event cards: one row per role (Attribute / Deontic / Object), trigger
-  marked, and a "also in En, Em" note whenever a T# is shared with other
-  events — directly surfaces the "same text in multiple triples" case.
 - Full-text view: sliced to start at Capítulo III (nothing before that is
   tagged). Each span is a nested <span> with its role color and an E# chip,
   so a reader can trace shared text back to its event.
@@ -19,6 +15,8 @@ import html
 import re
 from collections import defaultdict
 from pathlib import Path
+
+from spacy import displacy
 
 ROOT = Path(__file__).resolve().parents[1]
 ANN = ROOT / "data" / "triples.ann"
@@ -102,6 +100,48 @@ def span_key(t):
     return (t["type"], t["start"], t["end"])
 
 
+def render_event_arcs(ev, terms):
+    """Displacy manual-dep diagram with short T# labels.
+
+    Pseudo-tokens are kept narrow (text = T#, tag = role) so displacy's
+    fixed-distance arcs never collide the way they did when the token text
+    was the full attribute span. Reading order follows the source offsets so
+    the arcs match the way the sentence actually unfolds.
+    """
+    present = []
+    for role, tids in ev["roles"].items():
+        for tid in tids:
+            t = terms.get(tid)
+            if t is None:
+                continue
+            present.append((role, tid, t))
+    present.sort(key=lambda rti: (rti[2]["start"], rti[2]["end"]))
+
+    words = [{"text": tid, "tag": display_role(role)}
+             for role, tid, _ in present]
+
+    trigger_idx = next((i for i, (_, tid, _) in enumerate(present)
+                        if tid == ev["trigger_tid"]), None)
+    arcs = []
+    if trigger_idx is not None:
+        for i, (role, _, _) in enumerate(present):
+            if i == trigger_idx:
+                continue
+            lo, hi = sorted([trigger_idx, i])
+            arcs.append({"start": lo, "end": hi,
+                         "label": display_role(role),
+                         "dir": "right" if i > trigger_idx else "left"})
+
+    svg = displacy.render(
+        {"words": words, "arcs": arcs},
+        style="dep", manual=True, page=False,
+        options={"compact": True, "distance": 110,
+                 "color": "#333", "bg": "transparent",
+                 "font": "Inter, system-ui, sans-serif"},
+    )
+    return f'<div class="arc-view">{svg}</div>'
+
+
 def render_event_card(ev, terms, span_to_events):
     pairs = []
     seen_roles = set()
@@ -145,7 +185,9 @@ def render_event_card(ev, terms, span_to_events):
         f'<span class="trig-text">'
         f'{html.escape(trig_term.get("text", "").strip())}</span></h3>'
     )
-    return f'<section class="event-card">{header}{"".join(rows)}</section>'
+    arcs = render_event_arcs(ev, terms)
+    return (f'<section class="event-card">{header}'
+            f'{arcs}{"".join(rows)}</section>')
 
 
 def build_event_cards(events, terms, span_to_events):
@@ -282,6 +324,13 @@ HTML_SHELL = """<!doctype html>
   .row-meta .shared {{ color: #888; margin-left: 6px;
                         font-family: Inter, sans-serif; font-style: italic; }}
   .row-text {{ font-size: 14px; word-wrap: break-word; }}
+
+  /* Displacy manual-dep arc diagram, embedded per card. */
+  .arc-view {{ margin: .25rem 0 .5rem; overflow-x: auto; }}
+  .arc-view svg {{ max-width: 100%; height: auto; display: block; }}
+  .arc-view .displacy-token tspan {{ font-size: 13px; }}
+  .arc-view .displacy-tag {{ font-size: 11px; fill: #777; }}
+  .arc-view .displacy-label {{ font-size: 11px; fill: #555; }}
 
   /* --- Annotated-text view --- */
   .passage {{ line-height: 2.3; font-size: 15px;
