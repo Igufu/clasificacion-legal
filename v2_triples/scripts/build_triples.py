@@ -19,12 +19,25 @@ Object args are included only when that span resolved (partial events are
 flagged in the report). Statements without a Deontic span get no event but
 still appear in triples.jsonl with null spans.
 
-Outputs:
-  data/triples.ann       -- filtered T lines (same ids as filtered.ann) + E lines
-  data/triples.txt       -- copy of document.txt
-  data/triples.jsonl     -- one line per Excel row with any A/D/O cell
-  reports/join.csv       -- one row per Excel row: what was linked, or why not
-  reports/edge_cases.csv -- every flagged case (never handled silently)
+Two versions are written from the same join:
+
+  inferred -- every span the existing matchers found, including ones they
+              "translated" from a non-literal Excel value (bracketed
+              "[Titulares de] Buses" -> "buses", "[deberá]" -> "generará",
+              cross-references to an earlier sentence, case/accent-folded
+              matches).
+  literal  -- only spans whose text IS the Excel cell value (whitespace
+              aside), inside the statement's own text. See literalize().
+              Deontic spans are narrowed from the bold surface phrase to the
+              Excel modal itself ("deberán contar" -> "deberán").
+
+Outputs (inferred / literal):
+  data/triples.ann        / data/triples_literal.ann    -- T lines + E lines
+  data/triples.txt        / data/triples_literal.txt    -- copy of document.txt
+  data/triples.jsonl      / data/triples_literal.jsonl  -- one line per Excel row with any A/D/O cell
+  reports/join.csv        / reports/join_literal.csv    -- per Excel row: what was linked, or why not
+  reports/edge_cases.csv  / reports/edge_cases_literal.csv -- every flagged case
+  data/literal_id_map.csv -- literal T id -> the filtered.ann T it came from
 """
 
 import csv
@@ -37,8 +50,27 @@ import openpyxl
 from v2_paths import (
     EDGE_CASES_CSV_PATH,
     FILTERED_ANN_PATH,
+    FULL_ANN_PATH,
+    FULL_EDGE_CASES_CSV_PATH,
+    FULL_ID_MAP_PATH,
+    FULL_JOIN_CSV_PATH,
+    FULL_JSONL_PATH,
+    FULL_TXT_PATH,
     FILTERED_ID_MAP_PATH,
     JOIN_CSV_PATH,
+    LITERAL_ANN_PATH,
+    LITERAL_EDGE_CASES_CSV_PATH,
+    LITERAL_FULL_ANN_PATH,
+    LITERAL_FULL_EDGE_CASES_CSV_PATH,
+    LITERAL_FULL_ID_MAP_PATH,
+    LITERAL_FULL_JOIN_CSV_PATH,
+    LITERAL_FULL_JSONL_PATH,
+    LITERAL_FULL_TXT_PATH,
+    LITERAL_ID_MAP_PATH,
+    LITERAL_JOIN_CSV_PATH,
+    LITERAL_JSONL_PATH,
+    LITERAL_LOG_PATH,
+    LITERAL_TXT_PATH,
     SOURCE_ANN_PATH,
     TRIPLES_ANN_PATH,
     TRIPLES_JSONL_PATH,
@@ -50,7 +82,13 @@ from brat_io import load_document_text, read_ann, t_line, write_doc_copy, write_
 from attribute_review import is_implicit_attribute
 from build_dataset import compute_statement_spans
 from excel_to_json import SHEET_NAME, extract_statements, find_columns
-from matching import normalize_with_map
+from matching import (
+    find_diacritic_insensitive,
+    find_whitespace_insensitive,
+    normalize_with_map,
+    reject_multiline,
+    strip_diacritics_with_map,
+)
 from tag_attribute import tag_statements
 from tag_object import LABEL_ORDER, split_fragments, tag_objects
 
@@ -62,6 +100,14 @@ ELEMENTS = [
 ]
 EVENT_ROLES = {"attribute": "Attribute", "object": "Object"}
 LOGICAL_MARKER_RE = re.compile(r"\[\s*(?:AND|OR|Y|O)\s*\]", re.IGNORECASE)
+ROLES = ("attribute", "deontic", "object")
+LABEL_OF = {role: label for role, _, label, _ in ELEMENTS}
+
+# Literal version: when False (default) the span must equal the Excel value
+# exactly (only whitespace may differ). Set True to also accept spans that
+# differ only in case or Spanish accents (e.g. "Buses"/"buses",
+# "estandar"/"estándar"); the summary reports how many that would add.
+LITERAL_ALLOW_CASE_AND_ACCENTS = False
 
 
 def load_statements():
@@ -140,31 +186,116 @@ def missing_reason(role, stmt, side):
     return "unknown"
 
 
-def main():
-    doc_text = load_document_text()
-    statements = load_statements()
-    source = read_ann(SOURCE_ANN_PATH)
-    filtered = read_ann(FILTERED_ANN_PATH)
-    id_map = read_id_map()
+def excel_values(stmt):
+    """Excel A/D/O cells, whitespace-collapsed like attribute_review.py does."""
+    values = {}
+    for role, field, _, _ in ELEMENTS:
+        raw = stmt.get(field)
+        values[role] = normalize_with_map(raw)[0] if raw is not None else None
+    return values
 
-    tid_to_stmt, side = join_source_tids_to_stmt_no(doc_text, statements, source["entities"])
-    stmt_spans = compute_statement_spans(doc_text, statements)
 
-    entities = {e["tid"]: e for e in filtered["entities"]}
-    by_stmt = defaultdict(dict)  # stmt_no -> {label: new entity}
-    for old_tid, new_tid in id_map.items():
-        ent = entities[new_tid]
-        slot = by_stmt[tid_to_stmt[old_tid]]
-        if ent["label"] in slot:
-            raise AssertionError(
-                f"stmt {tid_to_stmt[old_tid]} has two {ent['label']} spans; needs a decision"
-            )
-        slot[ent["label"]] = ent
+def fold_text(value, loose):
+    value = normalize_with_map(value)[0]
+    return strip_diacritics_with_map(value)[0] if loose else value
 
+
+def _is_word_bounded(doc_text, start, end):
+    before = doc_text[start - 1] if start > 0 else " "
+    after = doc_text[end] if end < len(doc_text) else " "
+    return not before.isalnum() and not after.isalnum()
+
+
+def find_literal_word(doc_text, start, end, value, loose):
+    """First whole-word occurrence of `value` inside doc_text[start:end].
+
+    Uses the existing matching.py finders: whitespace-insensitive only when
+    strict, case + accent-insensitive when `loose`.
+    """
+    finder = find_diacritic_insensitive if loose else find_whitespace_insensitive
+    pos = start
+    while pos < end:
+        hit = reject_multiline(finder(doc_text[pos:end], value))
+        if hit is None:
+            return None
+        s, e = pos + hit[0], pos + hit[1]
+        if _is_word_bounded(doc_text, s, e):
+            return s, e
+        pos = s + 1
+    return None
+
+
+def literalize(statements, excel_by_stmt, inferred_by_stmt, stmt_spans, doc_text, loose):
+    """Keep only the inferred spans that are literally the Excel value.
+
+    A span is literal when the Excel cell has no brackets, the span lies in
+    the statement's own text, and its text equals the cell value (only
+    whitespace may differ; also case/accents when `loose`). For Deontic the
+    span is narrowed to the Excel modal as a whole word inside the bold
+    surface phrase. No new search outside the inferred spans is done.
+
+    Returns ({stmt_no: {role: entity}}, {(stmt_no, role): reason dropped}).
+    Entities carry `from_tid` (their filtered.ann T) and get `tid` later.
+    """
+    literal, dropped = defaultdict(dict), {}
+    for stmt in statements:
+        n = stmt["stmt_no"]
+        span = stmt_spans.get(n)
+        for role in ROLES:
+            value = excel_by_stmt[n][role]
+            ent = inferred_by_stmt.get(n, {}).get(role)
+            if value is None or ent is None:
+                continue
+            if "[" in value:
+                dropped[(n, role)] = "not literal: bracketed (implicit) Excel value"
+                continue
+            if not (span and span[0] <= ent["start"] and ent["end"] <= span[1]):
+                dropped[(n, role)] = "not literal: span outside the statement's own text"
+                continue
+            if role == "deontic":
+                hit = find_literal_word(doc_text, ent["start"], ent["end"], value, loose)
+                if hit is None:
+                    dropped[(n, role)] = (
+                        "not literal: Excel modal is not a whole word inside the bold surface phrase"
+                    )
+                    continue
+                start, end = hit
+            else:
+                if fold_text(ent["text"], loose) != fold_text(value, loose):
+                    dropped[(n, role)] = "not literal: span text differs from Excel value"
+                    continue
+                start, end = ent["start"], ent["end"]
+            literal[n][role] = {
+                "label": ent["label"],
+                "start": start,
+                "end": end,
+                "text": doc_text[start:end],
+                "from_tid": ent["tid"],
+            }
+    return literal, dropped
+
+
+def number_entities(by_stmt):
+    """Assign consecutive T ids in filtered.ann order (Attribute, Deontic,
+    DirectObject, each in source order)."""
+    order = {LABEL_OF[role]: i for i, role in enumerate(ROLES)}
+    ents = [ent for slot in by_stmt.values() for ent in slot.values()]
+    ents.sort(key=lambda e: (order[e["label"]], e["from_tid"]))
+    for i, ent in enumerate(ents, start=1):
+        ent["tid"] = i
+    return ents
+
+
+def assemble(statements, excel_by_stmt, linked_by_stmt, reason_for, stmt_spans):
+    """Build events, jsonl rows, join rows and edge-case flags for one version.
+
+    `linked_by_stmt` is {stmt_no: {role: entity}}; `reason_for(role, stmt)`
+    explains a non-empty Excel cell that has no linked span.
+    """
     attr_span_users = defaultdict(list)
-    for n, slot in by_stmt.items():
-        if "Attribute" in slot:
-            a = slot["Attribute"]
+    for n, slot in linked_by_stmt.items():
+        if "attribute" in slot:
+            a = slot["attribute"]
             attr_span_users[(a["start"], a["end"])].append(n)
 
     events, jsonl_rows, join_rows, edge_rows = [], [], [], []
@@ -186,12 +317,9 @@ def main():
 
     for stmt in statements:
         n = stmt["stmt_no"]
-        slot = by_stmt.get(n, {})
-        excel = {}
-        for role, field, _, _ in ELEMENTS:
-            raw = stmt.get(field)
-            excel[role] = normalize_with_map(raw)[0] if raw is not None else None
-        linked = {role: slot.get(label) for role, _, label, _ in ELEMENTS}
+        slot = linked_by_stmt.get(n, {})
+        excel = excel_by_stmt[n]
+        linked = {role: slot.get(role) for role in ROLES}
 
         if all(v is None for v in excel.values()):
             join_rows.append({"stmt_no": n, "status": "all_cells_empty"})
@@ -207,7 +335,7 @@ def main():
                 flag("empty_cell", n, role, None, None, f"Excel column {col} is empty")
                 continue
             if ent is None:
-                reasons[role] = missing_reason(role, stmt, side)
+                reasons[role] = reason_for(role, stmt)
                 flag("unmatched", n, role, value, None, reasons[role])
             if role != "deontic":
                 why = []
@@ -266,7 +394,7 @@ def main():
             ]
             events.append(f"E{event_id}\t" + " ".join(args))
 
-        present = [r for r in ("attribute", "deontic", "object") if linked[r] is not None]
+        present = [r for r in ROLES if linked[r] is not None]
         if len(present) == 3:
             status = "complete"
         elif event_id is not None:
@@ -316,7 +444,7 @@ def main():
                 "event_id": f"E{event_id}" if event_id else "",
                 **{
                     f"{role}_{k}": v
-                    for role in ("attribute", "deontic", "object")
+                    for role in ROLES
                     for k, v in (
                         ("excel", excel[role] or ""),
                         ("tid", tid(role) or ""),
@@ -327,35 +455,76 @@ def main():
             }
         )
 
-    ensure_v2_dirs()
-    t_lines = [
-        t_line(e["tid"], e["label"], e["start"], e["end"], e["text"]) for e in filtered["entities"]
-    ]
-    write_lines(TRIPLES_ANN_PATH, t_lines + events)
-    write_doc_copy(doc_text, TRIPLES_TXT_PATH)
-    with open(TRIPLES_JSONL_PATH, "w", encoding="utf-8", newline="") as f:
+    return events, jsonl_rows, join_rows, edge_rows
+
+
+def write_outputs(doc_text, entities, built, ann_path, txt_path, jsonl_path, join_path, edge_path):
+    events, jsonl_rows, join_rows, edge_rows = built
+    t_lines = [t_line(e["tid"], e["label"], e["start"], e["end"], e["text"]) for e in entities]
+    write_lines(ann_path, t_lines + events)
+    write_doc_copy(doc_text, txt_path)
+    with open(jsonl_path, "w", encoding="utf-8", newline="") as f:
         for row in jsonl_rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     join_fields = ["stmt_no", "status", "event_id"] + [
-        f"{role}_{k}"
-        for role in ("attribute", "deontic", "object")
-        for k in ("excel", "tid", "text", "reason")
+        f"{role}_{k}" for role in ROLES for k in ("excel", "tid", "text", "reason")
     ]
-    with open(JOIN_CSV_PATH, "w", encoding="utf-8", newline="") as f:
+    with open(join_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=join_fields, restval="")
         writer.writeheader()
         writer.writerows(join_rows)
     edge_fields = ["kind", "stmt_no", "element", "excel_value", "tid", "start", "end", "span_text", "note"]
-    with open(EDGE_CASES_CSV_PATH, "w", encoding="utf-8", newline="") as f:
+    with open(edge_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=edge_fields)
         writer.writeheader()
         writer.writerows(edge_rows)
 
-    status_counts = Counter(r["status"] for r in join_rows)
+
+def complete_triples_only(by_stmt):
+    """Keep only statements whose Attribute, Deontic and Object all have a
+    span. Entities are copied (number_entities renumbers them) and remember
+    their filtered.ann T in `from_tid`."""
+    return {
+        n: {role: {**ent, "from_tid": ent.get("from_tid", ent["tid"])} for role, ent in slot.items()}
+        for n, slot in by_stmt.items()
+        if all(role in slot for role in ROLES)
+    }
+
+
+def incomplete_reason(by_stmt, kind, fallback):
+    """reason_for() for a complete-triples-only version: says which part was
+    missing when a statement was dropped for being incomplete, else defers to
+    `fallback` (the reason of the version it was filtered from)."""
+
+    def reason(role, stmt):
+        slot = by_stmt.get(stmt["stmt_no"], {})
+        if role in slot:
+            missing = [r for r in ROLES if r not in slot]
+            return f"not a full {kind}triple: no {kind}{', '.join(missing)}"
+        return fallback(role, stmt)
+
+    return reason
+
+
+def write_derived_id_map(path, derived_entities, filtered_entities):
+    """Derived version's T id -> the filtered.ann T it came from (`narrowed` =
+    Deontic cut down to the Excel modal)."""
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["tid", "filtered_tid", "label", "start", "end", "narrowed"])
+        for e in derived_entities:
+            src = filtered_entities[e["from_tid"]]
+            narrowed = (e["start"], e["end"]) != (src["start"], src["end"])
+            writer.writerow([f"T{e['tid']}", f"T{e['from_tid']}", e["label"], e["start"], e["end"], narrowed])
+
+
+def print_summary(name, statements, built, paths):
+    events, _, join_rows, edge_rows = built
+    print(f"\n== {name} ==")
     print(f"Excel rows: {len(statements)}")
     print("Join result by status:")
-    for k, v in status_counts.most_common():
+    for k, v in Counter(r["status"] for r in join_rows).most_common():
         print(f"  {k}: {v}")
     print(f"Events written: {len(events)}")
     print("Edge cases flagged:")
@@ -364,7 +533,143 @@ def main():
     print("Sample events:")
     for line in events[:5]:
         print(f"  {line}")
-    print(f"-> {TRIPLES_ANN_PATH}\n-> {TRIPLES_JSONL_PATH}\n-> {JOIN_CSV_PATH}\n-> {EDGE_CASES_CSV_PATH}")
+    for p in paths:
+        print(f"-> {p}")
+
+
+def main():
+    doc_text = load_document_text()
+    statements = load_statements()
+    source = read_ann(SOURCE_ANN_PATH)
+    filtered = read_ann(FILTERED_ANN_PATH)
+    id_map = read_id_map()
+
+    tid_to_stmt, side = join_source_tids_to_stmt_no(doc_text, statements, source["entities"])
+    stmt_spans = compute_statement_spans(doc_text, statements)
+    excel_by_stmt = {s["stmt_no"]: excel_values(s) for s in statements}
+
+    role_of = {label: role for role, label in LABEL_OF.items()}
+    entities = {e["tid"]: e for e in filtered["entities"]}
+    inferred = defaultdict(dict)  # stmt_no -> {role: filtered.ann entity}
+    for old_tid, new_tid in id_map.items():
+        ent = entities[new_tid]
+        slot = inferred[tid_to_stmt[old_tid]]
+        role = role_of[ent["label"]]
+        if role in slot:
+            raise AssertionError(
+                f"stmt {tid_to_stmt[old_tid]} has two {ent['label']} spans; needs a decision"
+            )
+        slot[role] = ent
+
+    ensure_v2_dirs()
+
+    # --- inferred version (all spans the existing matchers found) ---
+    built = assemble(
+        statements,
+        excel_by_stmt,
+        inferred,
+        lambda role, stmt: missing_reason(role, stmt, side),
+        stmt_spans,
+    )
+    inferred_paths = (TRIPLES_ANN_PATH, TRIPLES_TXT_PATH, TRIPLES_JSONL_PATH, JOIN_CSV_PATH, EDGE_CASES_CSV_PATH)
+    write_outputs(doc_text, filtered["entities"], built, *inferred_paths)
+    print_summary("inferred (literal + translated)", statements, built, inferred_paths)
+
+    def inferred_reason(role, stmt):
+        return missing_reason(role, stmt, side)
+
+    # --- full triples: complete A + D + O in the inferred version ---
+    inferred_full = complete_triples_only(inferred)
+    inferred_full_entities = number_entities(inferred_full)
+    built_inferred_full = assemble(
+        statements,
+        excel_by_stmt,
+        inferred_full,
+        incomplete_reason(inferred, "", inferred_reason),
+        stmt_spans,
+    )
+    inferred_full_paths = (
+        FULL_ANN_PATH,
+        FULL_TXT_PATH,
+        FULL_JSONL_PATH,
+        FULL_JOIN_CSV_PATH,
+        FULL_EDGE_CASES_CSV_PATH,
+    )
+    write_outputs(doc_text, inferred_full_entities, built_inferred_full, *inferred_full_paths)
+    write_derived_id_map(FULL_ID_MAP_PATH, inferred_full_entities, entities)
+    print_summary(
+        "full triples (inferred + literal)",
+        statements,
+        built_inferred_full,
+        inferred_full_paths + (FULL_ID_MAP_PATH,),
+    )
+
+    # --- literal-only version ---
+    literal, dropped = literalize(
+        statements, excel_by_stmt, inferred, stmt_spans, doc_text, LITERAL_ALLOW_CASE_AND_ACCENTS
+    )
+    literal_entities = number_entities(literal)
+
+    def literal_reason(role, stmt):
+        return dropped.get((stmt["stmt_no"], role)) or (
+            f"no inferred span: {inferred_reason(role, stmt)}"
+        )
+
+    built_literal = assemble(statements, excel_by_stmt, literal, literal_reason, stmt_spans)
+    literal_paths = (
+        LITERAL_ANN_PATH,
+        LITERAL_TXT_PATH,
+        LITERAL_JSONL_PATH,
+        LITERAL_JOIN_CSV_PATH,
+        LITERAL_EDGE_CASES_CSV_PATH,
+    )
+    write_outputs(doc_text, literal_entities, built_literal, *literal_paths)
+    write_derived_id_map(LITERAL_ID_MAP_PATH, literal_entities, entities)
+
+    # --- full literal triples: literal A + D + O in the same statement ---
+    full = complete_triples_only(literal)
+    full_entities = number_entities(full)
+    built_full = assemble(
+        statements,
+        excel_by_stmt,
+        full,
+        incomplete_reason(literal, "literal ", literal_reason),
+        stmt_spans,
+    )
+    full_paths = (
+        LITERAL_FULL_ANN_PATH,
+        LITERAL_FULL_TXT_PATH,
+        LITERAL_FULL_JSONL_PATH,
+        LITERAL_FULL_JOIN_CSV_PATH,
+        LITERAL_FULL_EDGE_CASES_CSV_PATH,
+    )
+    write_outputs(doc_text, full_entities, built_full, *full_paths)
+    write_derived_id_map(LITERAL_FULL_ID_MAP_PATH, full_entities, entities)
+
+    loose, _ = literalize(statements, excel_by_stmt, inferred, stmt_spans, doc_text, loose=True)
+    extra = Counter(
+        role for n, slot in loose.items() for role in slot if role not in literal.get(n, {})
+    )
+    with open(LITERAL_LOG_PATH, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "allow_case_and_accents": LITERAL_ALLOW_CASE_AND_ACCENTS,
+                "case_or_accent_only_differences_excluded": dict(extra),
+                "dropped_reasons": dict(Counter(f"{r}: {why}" for (_, r), why in dropped.items())),
+            },
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    print_summary(
+        "literal only", statements, built_literal, literal_paths + (LITERAL_ID_MAP_PATH, LITERAL_LOG_PATH)
+    )
+    if extra:
+        print(f"(LITERAL_ALLOW_CASE_AND_ACCENTS=True would add: {dict(extra)})")
+    print_summary(
+        "full literal triples", statements, built_full, full_paths + (LITERAL_FULL_ID_MAP_PATH,)
+    )
 
 
 if __name__ == "__main__":

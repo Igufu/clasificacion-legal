@@ -3,5 +3,12 @@
   "entities_checked": 612,
   "events_checked": 261,
   "jsonl_rows_checked": 323,
+  "full_entities_checked": 306,
+  "full_events_checked": 102,
+  "literal_entities_checked": 296,
+  "literal_events_checked": 100,
+  "literal_jsonl_rows_checked": 323,
+  "full_literal_entities_checked": 30,
+  "full_literal_events_checked": 10,
   "errors": []
 }

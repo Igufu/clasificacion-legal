@@ -1,0 +1,16 @@
+{
+  "allow_case_and_accents": false,
+  "case_or_accent_only_differences_excluded": {
+    "object": 23,
+    "attribute": 10,
+    "deontic": 3
+  },
+  "dropped_reasons": {
+    "attribute: not literal: bracketed (implicit) Excel value": 118,
+    "object: not literal: span text differs from Excel value": 23,
+    "deontic: not literal: bracketed (implicit) Excel value": 145,
+    "object: not literal: bracketed (implicit) Excel value": 4,
+    "deontic: not literal: Excel modal is not a whole word inside the bold surface phrase": 16,
+    "attribute: not literal: span text differs from Excel value": 10
+  }
+}

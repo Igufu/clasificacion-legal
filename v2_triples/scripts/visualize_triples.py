@@ -8,18 +8,99 @@ lives below in detail rows (where line wrapping handles any length).
 - Full-text view: sliced to start at Capítulo III (nothing before that is
   tagged). Each span is a nested <span> with its role color and an E# chip,
   so a reader can trace shared text back to its event.
+
+All versions written by build_triples.py are rendered into the same page,
+with a toggle at the top: "Inferred + literal" (triples.ann), "Full triples
+(inferred + literal)" (triples_full.ann), "Literal
+only" (triples_literal.ann) and "Full literal triples"
+(triples_literal_full.ann). Element ids are prefixed per version
+("inferred-E5", "literal-E5") because E/T numbering differs between them.
+Each version's .jsonl supplies the statement number of every T, so spans
+that belong to no event (their statement has no Deontic span in that
+version) are marked "no deontic · St. N" instead of carrying no chip.
 """
 from __future__ import annotations
 
 import html
+import json
 import re
 from collections import defaultdict
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-ANN = ROOT / "data" / "triples.ann"
-TXT = ROOT / "data" / "triples.txt"
-OUT = ROOT / "reports" / "triples_viz.html"
+from v2_paths import (
+    FULL_ANN_PATH,
+    FULL_JSONL_PATH,
+    LITERAL_ANN_PATH,
+    LITERAL_FULL_ANN_PATH,
+    LITERAL_FULL_JSONL_PATH,
+    LITERAL_JSONL_PATH,
+    TRIPLES_ANN_PATH,
+    TRIPLES_JSONL_PATH,
+    TRIPLES_TXT_PATH,
+    TRIPLES_VIZ_HTML_PATH,
+    V2_DIR,
+)
+
+ROOT = V2_DIR
+TXT = TRIPLES_TXT_PATH
+OUT = TRIPLES_VIZ_HTML_PATH
+
+# (key, toggle label, .ann path, .jsonl path, one-line description shown above the cards)
+MODES = [
+    (
+        "inferred",
+        "Inferred + literal",
+        TRIPLES_ANN_PATH,
+        TRIPLES_JSONL_PATH,
+        "Every span the matchers found, including ones inferred from a non-literal "
+        "Excel value: bracketed values (“[Titulares de] Buses” → “buses”, "
+        "“[deberá]” → “generará”), cross-references to an earlier sentence, "
+        "and case/accent-folded matches. Deontic = the bold surface phrase.",
+    ),
+    (
+        "full",
+        "Full triples (inferred + literal)",
+        FULL_ANN_PATH,
+        FULL_JSONL_PATH,
+        "Inferred + literal, restricted to statements that have an Attribute, a Deontic and "
+        "an Object span: every event is a complete triple and every highlighted span belongs "
+        "to one. Spans may still be inferred from non-literal Excel values.",
+    ),
+    (
+        "literal",
+        "Literal only",
+        LITERAL_ANN_PATH,
+        LITERAL_JSONL_PATH,
+        "Only spans whose text is exactly the Excel value (whitespace aside), inside the "
+        "statement’s own text. Deontic = the Excel modal itself (“deberán”, not "
+        "“deberán contar”). Fewer spans and triples.",
+    ),
+    (
+        "literal_full",
+        "Full literal triples",
+        LITERAL_FULL_ANN_PATH,
+        LITERAL_FULL_JSONL_PATH,
+        "Only statements whose Attribute, Deontic and Object are all literal: every event is "
+        "a complete triple and every highlighted span belongs to one.",
+    ),
+]
+
+TID_KEYS = ("attribute_tid", "deontic_tid", "object_tid")
+
+
+def load_tid_to_stmt(jsonl_path):
+    """T id -> Statement No., from build_triples.py's jsonl sidecar."""
+    tid_to_stmt = {}
+    with open(jsonl_path, encoding="utf-8") as f:
+        for line in f:
+            row = json.loads(line)
+            for key in TID_KEYS:
+                if row[key]:
+                    tid_to_stmt[row[key]] = row["statement_no"]
+    return tid_to_stmt
+
+
+def stmt_label(stmt_nos):
+    return "St. " + ",".join(str(n) for n in sorted(set(stmt_nos))) if stmt_nos else ""
 
 TLINE = re.compile(r"^(T\d+)\t(\S+) (\d+) (\d+)\t(.*)$")
 ELINE = re.compile(r"^(E\d+)\t(.+)$")
@@ -135,7 +216,7 @@ def _wrap(text, max_chars=_MAX_CHARS):
     return lines or [""]
 
 
-def render_event_arcs(ev, terms):
+def render_event_arcs(ev, terms, id_prefix=""):
     """Build an SVG with one rounded box per role (full text, multi-line),
     a grey "T# · Role" caption below, and round bezier arcs from the trigger
     to each other role."""
@@ -209,7 +290,7 @@ def render_event_arcs(ev, terms):
         x1 = tokens[arc["lo"]]["center_x"]
         x2 = tokens[arc["hi"]]["center_x"]
         y_top = arc_anchor_y - arc["h"]
-        path_id = f'arc-{ev["id"]}-{ai}'
+        path_id = f'arc-{id_prefix}{ev["id"]}-{ai}'
         d = (f"M {x1:.1f},{arc_anchor_y:.1f} "
              f"C {x1:.1f},{y_top:.1f} {x2:.1f},{y_top:.1f} "
              f"{x2:.1f},{arc_anchor_y:.1f}")
@@ -265,7 +346,7 @@ def render_event_arcs(ev, terms):
     return f'<div class="arc-view">{"".join(out)}</div>'
 
 
-def render_event_card(ev, terms, span_to_events):
+def render_event_card(ev, terms, span_to_events, id_prefix="", tid_to_stmt=None):
     pairs = []
     seen_roles = set()
     for role in ROLE_ORDER:
@@ -301,20 +382,27 @@ def render_event_card(ev, terms, span_to_events):
         )
 
     trig_term = terms.get(ev["trigger_tid"], {})
+    anchor_id = f'{id_prefix}{ev["id"]}'
+    stmt_no = (tid_to_stmt or {}).get(ev["trigger_tid"])
+    stmt = (f'<span class="muted stmt">{stmt_label([stmt_no])}</span>'
+            if stmt_no is not None else "")
     header = (
-        f'<h3 id="{ev["id"]}">'
-        f'<a class="anchor" href="#{ev["id"]}">{ev["id"]}</a>'
+        f'<h3 id="{anchor_id}">'
+        f'<a class="anchor" href="#{anchor_id}">{ev["id"]}</a>{stmt}'
         f'<span class="muted"> — {display_role(ev["trigger_role"])}:</span> '
         f'<span class="trig-text">'
         f'{html.escape(trig_term.get("text", "").strip())}</span></h3>'
     )
-    arcs = render_event_arcs(ev, terms)
+    arcs = render_event_arcs(ev, terms, id_prefix)
     return (f'<section class="event-card">{header}'
             f'{arcs}{"".join(rows)}</section>')
 
 
-def build_event_cards(events, terms, span_to_events):
-    return "".join(render_event_card(ev, terms, span_to_events) for ev in events)
+def build_event_cards(events, terms, span_to_events, id_prefix="",
+                      tid_to_stmt=None):
+    return "".join(render_event_card(ev, terms, span_to_events, id_prefix,
+                                     tid_to_stmt)
+                   for ev in events)
 
 
 def _eid_sort(eid):
@@ -329,12 +417,15 @@ def slice_from_chapter_iii(text):
     return text[idx:], idx
 
 
-def render_annotated_text(text, terms, offset, span_to_events):
+def render_annotated_text(text, terms, offset, span_to_events, tid_to_stmt,
+                          tids_in_events):
     """Highlight each physical span in `text` with its role color + E# chip.
 
     Spans are deduplicated by (type, start, end): identical re-tagging (e.g.
     the 15 Attribute T#s on "Superintendencia del Medio Ambiente") collapses
     into one highlighted range, and the chip lists every event that uses it.
+    T#s of that range that are in no event (their statement has no Deontic
+    span in this version) get a "no deontic · St. N" chip instead.
     Overlapping spans nest with the classic split-and-reopen technique so
     the HTML is valid even when a longer span contains a shorter one.
     """
@@ -365,10 +456,19 @@ def render_annotated_text(text, terms, offset, span_to_events):
         return sorted(set(span_to_events.get(
             (s["type"], s["start"], s["end"]), [])), key=_eid_sort)
 
+    def _no_deontic(s):
+        """Label for this range's T#s that belong to no event, or ""."""
+        orphans = [tid for tid in s["tids"] if tid not in tids_in_events]
+        if not orphans:
+            return ""
+        return " · ".join(filter(None, [
+            "no deontic", stmt_label([tid_to_stmt[t] for t in orphans
+                                      if t in tid_to_stmt])]))
+
     def open_tag(s):
         role_disp = display_role(s["type"])
         eids = _events_for(s)
-        eid_str = ",".join(eids) if eids else "—"
+        eid_str = " · ".join(filter(None, [",".join(eids), _no_deontic(s)]))
         tids = ",".join(s["tids"])
         title = f'{tids} · {role_disp} · {eid_str}'
         return (f'<span class="ann" style="background:{role_color(s["type"])}"'
@@ -380,6 +480,9 @@ def render_annotated_text(text, terms, offset, span_to_events):
         eids = _events_for(s)
         chip = (f'<sup class="eid">{",".join(eids)}</sup>'
                 if eids else '')
+        no_deontic = _no_deontic(s)
+        if no_deontic:
+            chip += f'<sup class="eid no-deontic">{html.escape(no_deontic)}</sup>'
         return f'{chip}</span>'
 
     out: list[str] = []
@@ -466,10 +569,36 @@ HTML_SHELL = """<!doctype html>
                             background: rgba(255,255,255,.55);
                             padding: 0 2px; border-radius: 2px;
                             vertical-align: super; }}
+  .passage .ann sup.no-deontic {{ font-family: Inter, system-ui, sans-serif;
+                                   font-style: italic; color: #555;
+                                   background: rgba(255,255,255,.8);
+                                   border: 1px dashed #999; }}
+  .event-card h3 .stmt {{ font-family: ui-monospace, monospace;
+                          font-size: 12px; }}
+
+  /* --- Version toggle --- */
+  .toggle {{ display: inline-flex; border: 1px solid #d6d6d6;
+             border-radius: 8px; overflow: hidden; margin: .25rem 0 .5rem; }}
+  .toggle label {{ padding: 6px 14px; font-size: 13px; cursor: pointer;
+                   user-select: none; }}
+  .toggle label + label {{ border-left: 1px solid #d6d6d6; }}
+  .toggle input {{ position: absolute; opacity: 0; pointer-events: none; }}
+  .toggle label:has(input:checked) {{ background: #1b1b1b; color: #fff; }}
+  .toggle label:has(input:focus-visible) {{ outline: 2px solid #4a7bd0;
+                                            outline-offset: -2px; }}
+  .mode-desc {{ max-width: 760px; font-size: 13px; }}
 </style></head><body>
 <h1>Triples — DTO-31_24</h1>
-<p class="muted">{n_events} events · {n_terms} T-spans · text sliced from Capítulo III</p>
+<div class="toggle" role="radiogroup" aria-label="Version">{toggle}</div>
 <div class="legend">{legend}</div>
+{bodies}
+<script>{script}</script>
+</body></html>
+"""
+
+MODE_BODY = """<section class="mode" data-mode="{mode}"{hidden}>
+<p class="muted mode-desc">{description}</p>
+<p class="muted">{n_events} events · {n_terms} T-spans ({n_no_deontic} with no deontic) · text sliced from Capítulo III</p>
 
 <h2>Per-event cards <span class="muted">({n_events})</span></h2>
 {cards}
@@ -477,41 +606,101 @@ HTML_SHELL = """<!doctype html>
 <h2>Full text with inline spans</h2>
 <p class="muted">Hover a span to see its T#, role, and event ID; the small
 superscript next to each span is the E# it belongs to (comma-separated when
-the same text is reused by multiple events).</p>
+the same text is reused by multiple events). A dashed <i>no deontic · St. N</i>
+chip marks spans of statement N that have no Deontic span in this version,
+so they are in no event.</p>
 <div class="passage">{passage}</div>
-</body></html>
+</section>
+"""
+
+# Shows one .mode section at a time. A "#literal-E5"-style hash picks its
+# version; otherwise the last choice is remembered (per browser, best effort).
+TOGGLE_SCRIPT = """
+(function () {
+  var KEY = "triples-viz-mode";
+  var radios = Array.prototype.slice.call(document.querySelectorAll('input[name="mode"]'));
+  function show(mode) {
+    document.querySelectorAll(".mode").forEach(function (el) {
+      el.hidden = el.getAttribute("data-mode") !== mode;
+    });
+    try { localStorage.setItem(KEY, mode); } catch (e) {}
+  }
+  var wanted = null;
+  var m = location.hash.match(/^#(\\w+)-E\\d+$/);
+  if (m) { wanted = m[1]; } else { try { wanted = localStorage.getItem(KEY); } catch (e) {} }
+  radios.forEach(function (r) {
+    if (r.value === wanted) { r.checked = true; }
+    r.addEventListener("change", function () { if (r.checked) { show(r.value); } });
+  });
+  var checked = radios.filter(function (r) { return r.checked; })[0] || radios[0];
+  checked.checked = true;
+  show(checked.value);
+  if (m) { var target = document.getElementById(location.hash.slice(1)); if (target) { target.scrollIntoView(); } }
+})();
 """
 
 
-def build_html(events, terms, text, offset):
+def build_mode_body(mode, description, events, terms, tid_to_stmt, text,
+                    offset, hidden):
     span_to_events = build_span_to_events(terms, events)
+    tids_in_events = {tid for ev in events for tids in ev["roles"].values()
+                      for tid in tids}
+    cards = build_event_cards(events, terms, span_to_events,
+                              id_prefix=f"{mode}-", tid_to_stmt=tid_to_stmt)
+    passage = render_annotated_text(text, terms, offset, span_to_events,
+                                    tid_to_stmt, tids_in_events)
+    in_slice = [t for t in terms.values() if t["start"] >= offset]
+    return MODE_BODY.format(
+        mode=mode,
+        hidden=" hidden" if hidden else "",
+        description=html.escape(description),
+        n_events=len(events),
+        n_terms=len(in_slice),
+        n_no_deontic=sum(1 for t in in_slice if t["id"] not in tids_in_events),
+        cards=cards,
+        passage=passage,
+    )
+
+
+def build_html(versions, text, offset):
+    """`versions` is [(mode, label, description, events, terms,
+    tid_to_stmt)]; the first one is shown by default."""
     legend_items = [(k, v) for k, v in TYPE_COLORS.items()
                     if k != "DirectObject"]
     legend = " ".join(
         f'<span class="chip" style="background:{c}">{display_role(k)}</span>'
         for k, c in legend_items
     )
-    cards = build_event_cards(events, terms, span_to_events)
-    passage = render_annotated_text(text, terms, offset, span_to_events)
-    n_terms_in_slice = sum(1 for t in terms.values() if t["start"] >= offset)
-    return HTML_SHELL.format(
-        n_events=len(events),
-        n_terms=n_terms_in_slice,
-        legend=legend,
-        cards=cards,
-        passage=passage,
+    toggle = "".join(
+        f'<label><input type="radio" name="mode" value="{mode}"'
+        f'{" checked" if i == 0 else ""}> {html.escape(label)} '
+        f'<span class="muted">({len(events)})</span></label>'
+        for i, (mode, label, _, events, _, _) in enumerate(versions)
     )
+    bodies = "".join(
+        build_mode_body(mode, description, events, terms, tid_to_stmt, text,
+                        offset, hidden=i > 0)
+        for i, (mode, _, description, events, terms, tid_to_stmt)
+        in enumerate(versions)
+    )
+    return HTML_SHELL.format(toggle=toggle, legend=legend, bodies=bodies,
+                             script=TOGGLE_SCRIPT)
 
 
 def main():
-    terms, events = parse_ann(ANN)
     raw_text = TXT.read_text(encoding="utf-8")
     text, offset = slice_from_chapter_iii(raw_text)
+    versions = []
+    for mode, label, ann_path, jsonl_path, description in MODES:
+        terms, events = parse_ann(ann_path)
+        versions.append((mode, label, description, events, terms,
+                         load_tid_to_stmt(jsonl_path)))
+        print(f"{mode}: {len(events)} events, {len(terms)} spans "
+              f"({ann_path.relative_to(ROOT.parent)})")
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(build_html(events, terms, text, offset), encoding="utf-8")
+    OUT.write_text(build_html(versions, text, offset), encoding="utf-8")
     print(f"wrote {OUT.relative_to(ROOT.parent)}  "
-          f"({len(events)} events, {len(terms)} spans, "
-          f"text starts at offset {offset})")
+          f"(text starts at offset {offset})")
 
 
 if __name__ == "__main__":

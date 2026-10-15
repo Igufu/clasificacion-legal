@@ -35,6 +35,424 @@ Source: `nlp-tagging/outputs/annotations/standoff_comp.ann` (explicit/literal te
 Events written: **261** (one per Deontic span). Partial events lack: object = 122, attribute,object = 25, attribute = 12.
 Filtered entities not referenced by any event: Attribute = 10, DirectObject = 3.
 
+## Versions compared
+
+- **inferred** (`triples.*`): every span the matchers found, incl. ones inferred from non-literal Excel values.
+- **full triples** (`triples_full.*`): inferred, restricted to statements with an Attribute, Deontic **and** Object span.
+- **literal** (`triples_literal.*`): only spans whose text is the Excel value (below).
+- **full literal triples** (`triples_literal_full.*`): literal, restricted to complete triples.
+
+|  | inferred | full triples | literal | full literal triples |
+|---|---|---|---|---|
+| Attribute | 234 | 102 | 106 | 10 |
+| Deontic | 261 | 102 | 100 | 10 |
+| DirectObject | 117 | 102 | 90 | 10 |
+| **T total** | 612 | 306 | 296 | 30 |
+| E (events) | 261 | 102 | 100 | 10 |
+| rows: complete | 102 | 102 | 10 | 10 |
+| rows: partial_event | 159 | 0 | 90 | 0 |
+| rows: no_event | 62 | 221 | 223 | 313 |
+
+## Literal-only version
+
+`data/triples_literal.ann` / `.jsonl` keep only spans whose text **is** the Excel cell value, found inside the statement's own text: no bracketed (implicit) values, no cross-references to earlier sentences, no case/accent-folded matches. Deontic spans are narrowed from the bold surface phrase to the Excel modal itself (e.g. `deberán contar` → `deberán`). Same partial-event rule as the inferred version.
+
+### Full literal triples
+
+`data/triples_literal_full.ann` / `.jsonl`: the literal version restricted to statements whose Attribute, Deontic **and** Object are all literal. Every event is a complete triple and every span belongs to one.
+
+| stmt_no | event | attribute | deontic | object |
+|---|---|---|---|---|
+| 33 | E1 | el Ministerio del Medio Ambiente y el Ministerio de Transportes y Telecomunicaciones | deberán | características e información de una etiqueta |
+| 35 | E2 | el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud | deberán | filtros de partículas cerrados para el total de la maquinaria móvil fuera de ruta de construcción |
+| 44 | E3 | Superintendencia del Medio Ambiente | deberá | protocolo de certificación |
+| 69 | E4 | Ministerio de Energía | podrá | excepciones temporales |
+| 78 | E5 | Ministerio de Energía | podrá | normas complementarias |
+| 125 | E6 | SEREMI de Salud RM  | deberá | información histórica de las fuentes fijas que se hayan registrado |
+| 160 | E7 | Ministerio del Medio Ambiente | deberá | lista de los grandes establecimientos sujetos a la exigencia de cumplimiento de reducción |
+| 171 | E8 | Superintendencia del Medio Ambiente | deberá | informe con el estado de cumplimiento de la meta de emisión por establecimiento |
+| 238 | E9 | SEREMI del Medio Ambiente | deberá | actualización de sus instrumentos |
+| 258 | E10 | Servicio de Vivienda y Urbanización | podrá | resultados del estudio |
+
+Why inferred spans were dropped:
+
+| element_reason | count |
+|---|---|
+| deontic: not literal: bracketed (implicit) Excel value | 145 |
+| attribute: not literal: bracketed (implicit) Excel value | 118 |
+| object: not literal: span text differs from Excel value | 23 |
+| deontic: not literal: Excel modal is not a whole word inside the bold surface phrase | 16 |
+| attribute: not literal: span text differs from Excel value | 10 |
+| object: not literal: bracketed (implicit) Excel value | 4 |
+
+Of those, spans that differ from the Excel value **only** in case or accents (would be kept with `LITERAL_ALLOW_CASE_AND_ACCENTS = True` in build_triples.py): object = 23, attribute = 10, deontic = 3.
+
+<details>
+<summary>deontic: not literal: bracketed (implicit) Excel value (145)</summary>
+
+| stmt_no | excel_value | inferred_span |
+|---|---|---|
+| 10 | [deberá] | responsabilidad de aplicar |
+| 11 | [deberá] | generará |
+| 15 | [deberá] | diseñará |
+| 16 | [deberá] | gestionará |
+| 19 | [deberán] | promoverán |
+| 20 | [deberá] | establecerá |
+| 22 | [no deben] | prohíbe la operación |
+| 23 | [pueden] | exceptúa esta prohibición |
+| 24 | [deberán] | será fiscalizada |
+| 25 | [deberán] | debiendo denunciarse |
+| 26 | no [podrán] | No se permitirá |
+| 27 | no [podrán] | no se permitirá |
+| 28 | [deberán] | será fiscalizad |
+| 29 | [deberán] | debiendo denunciarse |
+| 30 | [deberán] | evaluarán  |
+| 31 | [deberán] | considerará |
+| 32 | [deberá] |  iniciará |
+| 39 | [deberá] | se coordinará |
+| 48 | [no deben] | Se prohíbe |
+| 50 | no [podrán] |  No está permitido agregar |
+| 54 | [no deben] | no se aplicará |
+| 66 | [deberá] | fiscalizará |
+| 67 | [deberán] | será responsabilidad |
+| 85 | [deberá] | desarrollará |
+| 86 | [deberá] | realizará |
+| 89 | [deberá] | implementará  |
+| 90 | [deberá] |  incorporarán |
+| 92 | [no deben] | exentos de cumplir |
+| 95 | [deberán] | se acreditarán |
+| 96 | [deberán] | aplicarán |
+| 100 | [deberá] | informará  |
+| 102 | [no deben] | exentos de cumplir  |
+| 107 | [no deben] | Se exceptúan |
+| 109 | [deberá] | será entregada |
+| 113 | [no deben] | Se exceptúan  |
+| 115 | [no deben] | Se prohíben l |
+| 117 | [deberá] |  se acreditará  |
+| 121 | [podrán] | Se eximen |
+| 135 | [deberá] | definirá  |
+| 137 | [no deben] | Se exceptúan |
+| 144 | [no deben] | Se excluyen |
+| 147 | [deberán] |  implementa |
+| 156 | [no podrá] | podrá superar |
+| 166 | [deberá] | aplicará  |
+| 169 | [deberá] | notificará |
+| 170 | [deberá] | desarrollará |
+| 173 | [deberá] | aprobados |
+| 174 | [deberá] | fiscalizados |
+| 183 | [deberá] |  se formalizará |
+| 197 | [deberá] | será definido |
+| 204 | [no deben] | Se exceptúan |
+| 206 | [deberá] | fiscalizar  |
+| 211 | [podrán] | programe |
+| 212 | [deberán] | completar  |
+| 214 | [no deben] | se exceptúa |
+| 215 | [deberán] |  completar |
+| 217 | [no deben] | se exceptúa |
+| 218 | [deberán] | completar |
+| 220 | [deberá] | desarrollará  |
+| 221 | [no deben] | se prohíbe el uso |
+| 222 | solo [podrán] | sólo estará permitido el uso |
+| 223 | [deberá] | fiscalización de esta medida corresponderá |
+| 224 | [no deben] | se prohíbe el uso |
+| 225 | [deberá] | fiscalización de esta medida corresponderá |
+| 226 | [deberá] | fortalecerá |
+| 227 | [deberá] | analizará la pertinencia  |
+| 229 | [deberá] | fiscalización de esta medida corresponderá |
+| 231 | [no deben] | se prohibirá el uso |
+| 232 | [no deben] | Se eximen de cumplir |
+| 234 | [deberá] | fiscalización de esta medida corresponderá |
+| 236 | [deberá] | fiscalización de esta medida corresponderá |
+| 237 | [deberá] |  apoyará  |
+| 239 | [deberá] | levantará |
+| 240 | [deberá] | fomentará |
+| 243 | [no deben] | Se exceptúan de cumplir  |
+| 244 | [deberá] | control, fiscalización y sanción en caso de incumplimiento, corresponderá |
+| 245 | [deberá] |  propondrá |
+| 246 | [deberá] | dará a conocer |
+| 247 | [deberá] | actualizará |
+| 250 | [deberá] | apoyará  |
+| 253 | [deberá] | se aplicarán |
+| 254 | [deberá] | evaluará  |
+| 255 | [deberá] | aplicarán |
+| 256 | [deberá] |  se realizará  |
+| 257 | [deberá] | encargará |
+| 259 | [deberá] |  desarrollará |
+| 260 | [deberá] | fomentará |
+| 262 | [deberán] | elaborarán |
+| 263 | [deberán] | evaluarán |
+| 264 | [deberán] | buscarán |
+| 265 | [deberán] | evaluarán |
+| 268 | [no debe] | se prohíbe la quema  |
+| 270 | [deberán] | La fiscalización de esta medida corresponderá  |
+| 272 | [deberán] |  elaborarán  |
+| 273 | [deberá] |  diseñará |
+| 274 | [deberá] | deberá orientarse |
+| 275 | [deberá] |  continuará |
+| 276 | [deberá] | procurando obtener |
+| 279 | [deberá] |  apoyará |
+| 280 | [deberá] | elaborará |
+| 281 | [deberá] | gestionará |
+| 282 | [deberá] | gestionará |
+| 285 | [deberá] | propondrá |
+| 286 | [deberá] | coordinará y gestionará |
+| 287 | [deberán] | apoyarán  |
+| 288 | [deberá] | apoyará |
+| 289 | [deberá] | gestionará |
+| 290 | [deberán] | elaborarán |
+| 291 | [deberán] | propondrán |
+| 292 | [deberán] | diseñará y coordinará |
+| 293 | [deberán] | Fortalecer  |
+| 294 | [deberán] | Incentivar |
+| 295 | [deberá] | coordinará |
+| 296 | [deberá] | Implementación  |
+| 297 | [deberá] | Implementación |
+| 298 | [deberá] | Realización |
+| 299 | [deberá] | coordinará |
+| 300 | [deberá] | definirá |
+| 301 | [deberá] | Promover |
+| 302 | [deberá] | se realizará |
+| 303 | [deberá] |  implementará |
+| 304 | [deberá] | se informará |
+| 305 | [deberán] |  diseñarán e implementarán  |
+| 309 | [deberán] | coordinado |
+| 311 | [deberán] |  enviarán  |
+| 313 | [deberá] |  dispondrá e implementará |
+| 314 | [deberá] |  se coordinará |
+| 316 | [deberá] | deberá ser informado  |
+| 321 | solo [podrán] |  sólo se permitirán |
+| 326 | [deberá] | fiscalización de esta medida y sanción en caso de incumplimiento, corresponderá |
+| 330 | [deberá] |  reforzará |
+| 332 | [deberá] | dispondrá |
+| 336 | [deberá] | La fiscalización de esta medida y sanción en caso de incumplimiento, corresponderá |
+| 340 | [deberá] | reforzará |
+| 346 | [deberá] | fiscalización de esta medida y sanción en caso de incumplimiento, corresponderá |
+| 350 | [deberá] | reforzará  |
+| 352 | [deberá] |  informará  |
+| 353 | [deberá] | declarará |
+| 354 | [deberá] | hará públicas |
+| 357 | [deberá] | informar |
+| 359 | [deberá] | tará encargada de la verificación |
+| 361 | [deberá] | remitirá |
+| 362 | [deberá] | será publicado |
+| 364 | [deberán] | solicitar  |
+| 365 | [deberán] | desarrollará |
+
+</details>
+
+<details>
+<summary>attribute: not literal: bracketed (implicit) Excel value (118)</summary>
+
+| stmt_no | excel_value | inferred_span |
+|---|---|---|
+| 1 | [Titulares de] Buses | buses |
+| 7 | [Titulares de] Buses | buses |
+| 8 | [Titulares de Buses] | buses |
+| 16 | [Ministerio de Transportes y Telecomunicaciones] | Ministerio de Transportes y Telecomunicaciones |
+| 22 | [Titulares de] vehículo comercial, transporte de carga y transporte de pasajeros, incluyendo furgones escolares | vehículo comercial, transporte de carga y transporte de pasajeros, incluyendo furgones escolares |
+| 25 | [Carabineros de Chile e inspectores fiscales y municipales] | Carabineros de Chile e inspectores fiscales y municipales |
+| 26 | [Titulares de] vehículos motorizados de encendido por chispa (ciclo Otto) | vehículos motorizados de encendido por chispa (ciclo Otto) |
+| 27 | [Titulares de] vehículos motor diésel | vehículos motor diésel |
+| 29 | [Carabineros de Chile e inspectores fiscales y municipales] | Carabineros de Chile e inspectores fiscales y municipales |
+| 31 | [el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones] | el Ministerio de Medio Ambiente en conjunto con el Ministerio de Transportes y Telecomunicaciones |
+| 34 | [Titulares de] vehículos motorizados livianos y medianos | vehículos motorizados livianos y medianos |
+| 36 | [el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud] | el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud |
+| 38 | [el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud] | el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud |
+| 40 | [Titulares de] maquinaria móvil fuera de ruta | maquinaria móvil fuera de ruta |
+| 48 | [Distribuidores/expendedores de] gasolina | gasolina |
+| 50 | [Distribuidores/expendedores de] gasolina | gasolina |
+| 70 | [Ministerio de Energía] | Ministerio de Energía |
+| 71 | [Ministerio de Energía] | Ministerio de Energía |
+| 75 | [Titulares de] instalaciones de distribución | instalaciones de distribución |
+| 76 | [Titulares de] equipos de recuperación y/o eliminación de vapores | equipos de recuperación y/o eliminación de vapores |
+| 77 | [Titulares de] equipos de recuperación y/o eliminación de vapores | equipos de recuperación y/o eliminación de vapores |
+| 80 | [Titulares de tanques que almacenen combustibles líquidos] | tanques que almacenen combustibles líquidos |
+| 81 | [Titulares de] sistemas de recuperación de vapores | sistemas de recuperación de vapores |
+| 82 | [Titulares de] camiones tanques | camiones tanques |
+| 88 | [Superintendencia de Electricidad y Combustibles] | Superintendencia de Electricidad y Combustibles |
+| 90 | [Superintendencia de Electricidad y Combustibles] | Superintendencia de Electricidad y Combustibles |
+| 92 | [Titulares de] hornos panaderos | hornos panaderos |
+| 93 | [Titulares de] calderas | calderas |
+| 94 | [Titulares de] calderas | calderas |
+| 97 | [Titulares de] calderas | calderas |
+| 98 | [Titulares de] calderas | calderas |
+| 99 | Titulares de [calderas] | calderas |
+| 102 | [Titulares de] calderas | calderas |
+| 103 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 104 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 106 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 107 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 109 | [Superintendencia del Medio Ambiente] | Superintendencia del Medio Ambiente |
+| 112 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 113 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 115 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 116 | [Superintendencia del Medio Ambiente] | Superintendencia del Medio Ambiente |
+| 117 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 118 | [Titulares de] calderas | calderas |
+| 119 | [Titulares de] fuentes estacionarias emisoras | fuentes estacionarias emisoras |
+| 120 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 121 | [Titulares de] las calderas | las calderas |
+| 122 | [Titulares de] las calderas | las calderas |
+| 124 | [Superintendencia del Medio Ambiente] | Superintendencia del Medio Ambiente |
+| 128 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 129 | [Titulares de] fuentes estacionarias | fuentes estacionarias |
+| 132 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 133 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 136 | titulares de las fuentes [estacionarias] | titulares de las fuentes |
+| 137 | [Titulares de] fuentes [estacionarias] | fuentes |
+| 138 | [Titulares de] fuentes [estacionarias] | fuentes |
+| 139 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 143 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 144 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 145 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 146 | Superintendencia [del Medio Ambiente] | Superintendencia |
+| 147 | [Titulares de] calderas y procesos con combustión | calderas y procesos con combustión |
+| 151 | [Titulares de] grandes establecimientos | grandes establecimientos |
+| 152 | [Titulares de] grandes establecimientos | grandes establecimientos |
+| 153 | [Titulares de] grandes establecimientos | grandes establecimientos |
+| 156 | [Ministerio del Medio Ambiente] | Ministerio del Medio Ambiente |
+| 159 | [Titulares de] grandes establecimientos | grandes establecimientos |
+| 163 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 164 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 165 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 166 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 170 | [Superintendencia del Medio Ambiente] | Superintendencia del Medio Ambiente |
+| 182 | [Titulares de] establecimientos que no pertenecen al listado de grandes establecimientos existentes | establecimientos que no pertenecen al listado de grandes establecimientos existentes |
+| 188 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 189 | [Titulares de] grandes establecimientos | grandes establecimientos |
+| 198 | [Titulares de grupos electrógenos] | titulares de grupos electrógenos |
+| 200 | [Titulares de] grupos electrógenos | grupos electrógenos |
+| 204 | [Titulares de] planteles de porcinos | planteles de porcinos |
+| 207 | [Titulares de] planteles de porcinos | planteles de porcinos |
+| 209 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 210 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 211 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 212 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 213 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 214 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 215 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 216 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 217 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 218 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 219 | [Titulares de] planteles de aves de corral | planteles de aves de corral |
+| 224 | [Usuarios de] calefactores | calefactores |
+| 231 | [Titulares de] hoteles u otra clase de hospedajes | hoteles u otra clase de hospedajes |
+| 232 | [Usuarios de] calefactores | calefactores |
+| 233 | [Usuarios de] calefactores | calefactores |
+| 235 | [Usuarios de] calefactores | calefactores |
+| 240 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 243 | [Comercializadores de] calefactores | calefactores |
+| 248 | [Comercializadores de] leña | leña |
+| 255 | [Ministerio de Vivienda y Urbanismo] | Ministerio de Vivienda y Urbanismo |
+| 256 | [Ministerio de Vivienda y Urbanismo] | Ministerio de Vivienda y Urbanismo |
+| 274 | [Ministerio de Agricultura] | Ministerio de Agricultura |
+| 276 | [Gobierno Regional Metropolitano de Santiago] | Gobierno Regional Metropolitano de Santiago |
+| 278 | [Gobierno Regional Metropolitano de Santiago] | Gobierno Regional Metropolitano de Santiago |
+| 291 | [el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes] | el Ministerio del Medio Ambiente, junto con la Intendencia Regional Metropolitana, Ministerios y Servicios competentes |
+| 293 | [la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM] | la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM |
+| 294 | [la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM] | la SEREMI del Medio Ambiente en conjunto con la SEREMI de Educación RM |
+| 296 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 297 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 298 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 300 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 301 | [SEREMI del Medio Ambiente] | SEREMI del Medio Ambiente |
+| 314 | [Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM] | Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM |
+| 315 | [Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM] | Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM |
+| 316 | [Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM] | Ministerio de Transportes y Telecomunicaciones, a través de la SEREMI de Transportes y Telecomunicaciones RM |
+| 321 | [Titulares de] viviendas | viviendas |
+| 325 | [Titulares de] calefactores de uso residencial | calefactores de uso residencial |
+| 335 | [Titulares de] calefactores de uso residencial | calefactores de uso residencial |
+| 345 | [Titulares de] calefactores de uso residencial | calefactores de uso residencial |
+
+</details>
+
+<details>
+<summary>object: not literal: span text differs from Excel value (23)</summary>
+
+| stmt_no | excel_value | inferred_span |
+|---|---|---|
+| 7 | el reconocimiento del estandar superior | el reconocimiento del estándar superior |
+| 9 | Programa de incentivos de Reducción de Emisiones y de Eficiencia Energetica | Programa de Incentivos de Reducción de Emisiones y de Eficiencia Energética |
+| 11 | Programa de Seguimiento anual de las emisiones vehiculares del Sistema de Buses transantiago | Programa de Seguimiento Anual de las emisiones vehiculares del Sistema de Buses Transantiago |
+| 15 | Modelo de Fiscalización automatizada | modelo de fiscalización automatizada |
+| 16 | recursos en la Ley de presupuestos | recursos en la Ley de Presupuestos |
+| 39 | municipios de la Región Metropolitana de Santiago | Municipios de la Región Metropolitana de Santiago |
+| 85 | Catastro del actual sistema de recuperación de emisiones | catastro del actual sistema de recuperación de emisiones |
+| 155 | nueva emisión masica anual autorizada de material particulado | nueva emisión másica anual autorizada de material particulado |
+| 173 | Programas de compensación de emisiones | programas de compensación de emisiones |
+| 189 | propuesta del programa de compensación respectivo | propuesta del Programa de Compensación respectivo |
+| 219 | Plan de gestión del guano | Plan de Gestión del Guano |
+| 220 | sistema de registro de emisiones de amoniaco | sistema de registro de emisiones de amoníaco |
+| 226 | seguimiento de la calidad del aire en la zona B | seguimiento de la calidad del aire en la ZONA B |
+| 237 | en la elaboración de una ordenanza | en la elaboración de una Ordenanza |
+| 248 | requerimientos técnicos de la Norma Nch2907 | requerimientos técnicos de la Norma NCh2907 |
+| 253 | estandares técnicos para el acondicionamiento térmico de viviendas | estándares técnicos para el acondicionamiento térmico de viviendas |
+| 286 | construcción de 60 kilometros de pistas solo bus | construcción de 60 kilómetros de pistas solo bus |
+| 290 | Plan de trabajo | plan de trabajo |
+| 298 | jornadas de dialogos de educación ambiental | jornadas de diálogos de educación ambiental |
+| 302 | levantamiento de informacion | levantamiento de información |
+| 328 | clases de educación fisica | clases de Educación Física |
+| 330 | Programa de aspirado y lavado de calles | programa de aspirado y lavado de calles |
+| 332 | medidas de restriccion vehicular | medidas de restricción vehicular |
+
+</details>
+
+<details>
+<summary>deontic: not literal: Excel modal is not a whole word inside the bold surface phrase (16)</summary>
+
+| stmt_no | excel_value | inferred_span |
+|---|---|---|
+| 55 | podrá | autorizadas |
+| 99 | deberán | deberá ser acreditada |
+| 104 | deberán | se acreditarán |
+| 129 | debe | debiendo acreditar |
+| 133 | deberán | deberá diseñarse |
+| 136 | deberán | dar cumplimiento |
+| 140 | deberá | debe ser aprobado |
+| 152 | podrán | podrá alcanzarse |
+| 163 | podrá | podrán ser aprobados o rechazados  |
+| 187 | deberán | deba ser presentado |
+| 189 | deberán | deberá incorporar  |
+| 202 | deberán | deberá implementar  |
+| 248 | deberán | deberá cumplir |
+| 325 | no podrán |  No podrán funcionar |
+| 335 | no podrán | No podrán funcionar  |
+| 345 | no podrán | No podrán funcionar |
+
+</details>
+
+<details>
+<summary>attribute: not literal: span text differs from Excel value (10)</summary>
+
+| stmt_no | excel_value | inferred_span |
+|---|---|---|
+| 126 | Titulares de fuentes estacionarias | titulares de fuentes estacionarias |
+| 162 | Titulares de grandes establecimientos | titulares de grandes establecimientos |
+| 183 | SEREMI del Medio Ambiente | Seremi del Medio Ambiente |
+| 190 | Titulares de establecimientos industriales o comerciales | titulares de establecimientos industriales o comerciales |
+| 196 | Titulares de grupos electrógenos | titulares de grupos electrógenos |
+| 251 | Comerciantes de leña | comerciantes de leña |
+| 252 | Comerciantes de leña | comerciantes de leña |
+| 311 | Servicios competentes | servicios competentes |
+| 360 | Servicios públicos | servicios públicos |
+| 363 | Servicios públicos | servicios públicos |
+
+</details>
+
+<details>
+<summary>object: not literal: bracketed (implicit) Excel value (4)</summary>
+
+| stmt_no | excel_value | inferred_span |
+|---|---|---|
+| 24 | medida [prohibición de operación del motor de vehículos detenidos por más de 5 minutos. ART 13] | medida |
+| 28 | medida [prohibición emisión continua de humo visible negro, gris o azul, excepto vapor de agua (humo blanco), . ART 14] | medida |
+| 147 | obligacion [alineación sistema monitoreo e informacion] | obligación |
+| 204 | medida [reducciones amoniaco ART 70] | medida |
+
+</details>
+
+Per-row detail: `reports/join_literal.csv`, `reports/edge_cases_literal.csv`.
+
 ## Unmatched rows
 
 Excel cells with a value but no span (existing matching logic only; no new heuristics). Full per-row detail: `reports/join.csv`.

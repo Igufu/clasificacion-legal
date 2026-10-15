@@ -13,6 +13,12 @@ script exits non-zero):
   - every filtered T maps back (filtered_id_map.csv) to a source T with the
     same label, offsets and text.
   - triples.jsonl agrees with the events (ids, spans, text).
+  - literal version (triples_literal.ann / .jsonl): the same structural
+    checks, plus each literal T comes from a filtered.ann T of the same label
+    (identical span, or a sub-span for a narrowed Deontic) and its text equals
+    the non-bracketed Excel value.
+  - full literal triples (triples_literal_full.ann / .jsonl): the literal
+    checks, plus every event is complete and every T belongs to an event.
 """
 
 import csv
@@ -26,6 +32,17 @@ from v2_paths import (
     FILTERED_ANN_PATH,
     FILTERED_ID_MAP_PATH,
     JOIN_CSV_PATH,
+    FULL_ANN_PATH,
+    FULL_ID_MAP_PATH,
+    FULL_JSONL_PATH,
+    LITERAL_ANN_PATH,
+    LITERAL_FULL_ANN_PATH,
+    LITERAL_FULL_ID_MAP_PATH,
+    LITERAL_FULL_JSONL_PATH,
+    LITERAL_ID_MAP_PATH,
+    LITERAL_JOIN_CSV_PATH,
+    LITERAL_JSONL_PATH,
+    LITERAL_LOG_PATH,
     SOURCE_ANN_PATH,
     SUMMARY_MD_PATH,
     TRIPLES_ANN_PATH,
@@ -33,50 +50,44 @@ from v2_paths import (
     VALIDATION_JSON_PATH,
 )
 from brat_io import load_document_text, read_ann
+from build_triples import LITERAL_ALLOW_CASE_AND_ACCENTS, fold_text
 from filter_ann import KEEP_LABELS
 
 ROLE_LABELS = {"Attribute": "Attribute", "Object": "DirectObject"}
 
 
-def validate(doc_text, source, filtered, triples, id_map, jsonl_rows):
+def check_ann(name, ann, doc_text):
+    """Per-file checks shared by every .ann the pipeline writes."""
+    errors = []
+    if ann["other"]:
+        errors.append(f"{name}: {len(ann['other'])} unparsed lines")
+    if ann["relations"] or ann["attributes"]:
+        errors.append(f"{name}: unexpected R/A lines")
+    if [e["tid"] for e in ann["entities"]] != list(range(1, len(ann["entities"]) + 1)):
+        errors.append(f"{name}: T ids not consecutive")
+    for e in ann["entities"]:
+        if e["label"] not in KEEP_LABELS:
+            errors.append(f"{name}: T{e['tid']} has dropped label {e['label']}")
+        if "\n" in e["text"] or "\r" in e["text"]:
+            errors.append(f"{name}: T{e['tid']} text contains a newline")
+        if doc_text[e["start"]:e["end"]] != e["text"]:
+            errors.append(
+                f"{name}: T{e['tid']} doc[{e['start']}:{e['end']}]="
+                f"{doc_text[e['start']:e['end']]!r} != {e['text']!r}"
+            )
+    return errors
+
+
+def check_events_and_jsonl(name, triples, jsonl_rows):
+    """Event structure + agreement between a triples .ann and its jsonl."""
     errors = []
     ents = {e["tid"]: e for e in triples["entities"]}
-
-    for name, ann in (("filtered.ann", filtered), ("triples.ann", triples)):
-        if ann["other"]:
-            errors.append(f"{name}: {len(ann['other'])} unparsed lines")
-        if ann["relations"] or ann["attributes"]:
-            errors.append(f"{name}: unexpected R/A lines")
-        if [e["tid"] for e in ann["entities"]] != list(range(1, len(ann["entities"]) + 1)):
-            errors.append(f"{name}: T ids not consecutive")
-        for e in ann["entities"]:
-            if e["label"] not in KEEP_LABELS:
-                errors.append(f"{name}: T{e['tid']} has dropped label {e['label']}")
-            if "\n" in e["text"] or "\r" in e["text"]:
-                errors.append(f"{name}: T{e['tid']} text contains a newline")
-            if doc_text[e["start"]:e["end"]] != e["text"]:
-                errors.append(
-                    f"{name}: T{e['tid']} doc[{e['start']}:{e['end']}]="
-                    f"{doc_text[e['start']:e['end']]!r} != {e['text']!r}"
-                )
-
-    if filtered["entities"] != triples["entities"]:
-        errors.append("triples.ann T lines differ from filtered.ann")
-
-    src = {e["tid"]: e for e in source["entities"]}
-    for old, new in id_map.items():
-        s, f = src[old], ents[new]
-        if (s["label"], s["start"], s["end"], s["text"]) != (f["label"], f["start"], f["end"], f["text"]):
-            errors.append(f"T{new} does not match source T{old}")
-    if len(id_map) != len(filtered["entities"]):
-        errors.append("id map size != filtered entity count")
-
     if [e["eid"] for e in triples["events"]] != list(range(1, len(triples["events"]) + 1)):
-        errors.append("E ids not consecutive")
+        errors.append(f"{name}: E ids not consecutive")
     trigger_use = Counter(e["trigger"] for e in triples["events"])
     event_args = {}
     for ev in triples["events"]:
-        eid = f"E{ev['eid']}"
+        eid = f"{name} E{ev['eid']}"
         trig = ents.get(ev["trigger"])
         if ev["label"] != "Deontic" or trig is None or trig["label"] != "Deontic":
             errors.append(f"{eid}: trigger is not a Deontic T")
@@ -96,32 +107,116 @@ def validate(doc_text, source, filtered, triples, id_map, jsonl_rows):
                 errors.append(f"{eid}: {role}:{ref} is a {target['label']}")
             args[role] = ref
         args["Deontic"] = f"T{ev['trigger']}"
-        event_args[eid] = args
+        event_args[f"E{ev['eid']}"] = args
 
     seen_events = set()
     for row in jsonl_rows:
+        where = f"{name} jsonl stmt {row['statement_no']}"
         eid = row["event_id"]
         if eid is None:
             if row["deontic_tid"] is not None:
-                errors.append(f"jsonl stmt {row['statement_no']}: Deontic span but no event")
+                errors.append(f"{where}: Deontic span but no event")
             continue
         seen_events.add(eid)
         args = event_args.get(eid)
         if args is None:
-            errors.append(f"jsonl stmt {row['statement_no']}: {eid} not in triples.ann")
+            errors.append(f"{where}: {eid} not in {name}")
             continue
         for role, key in (("Attribute", "attribute"), ("Deontic", "deontic"), ("Object", "object")):
             if args.get(role) != row[f"{key}_tid"]:
-                errors.append(f"jsonl stmt {row['statement_no']}: {role} tid mismatch with {eid}")
+                errors.append(f"{where}: {role} tid mismatch with {eid}")
                 continue
             if row[f"{key}_tid"] is not None:
                 e = ents[int(row[f"{key}_tid"][1:])]
                 text_key = "deontic_text" if key == "deontic" else f"{key}_text"
                 if row[f"{key}_span"] != [e["start"], e["end"]] or row[text_key] != e["text"]:
-                    errors.append(f"jsonl stmt {row['statement_no']}: {key} span/text mismatch")
+                    errors.append(f"{where}: {key} span/text mismatch")
     if seen_events != set(event_args):
-        errors.append("events and jsonl rows do not correspond one-to-one")
+        errors.append(f"{name}: events and jsonl rows do not correspond one-to-one")
+    return errors
 
+
+def validate(doc_text, source, filtered, triples, id_map, jsonl_rows):
+    """Inferred version: filtered.ann + triples.ann + triples.jsonl."""
+    errors = check_ann("filtered.ann", filtered, doc_text)
+    errors += check_ann("triples.ann", triples, doc_text)
+
+    if filtered["entities"] != triples["entities"]:
+        errors.append("triples.ann T lines differ from filtered.ann")
+
+    ents = {e["tid"]: e for e in triples["entities"]}
+    src = {e["tid"]: e for e in source["entities"]}
+    for old, new in id_map.items():
+        s, f = src[old], ents[new]
+        if (s["label"], s["start"], s["end"], s["text"]) != (f["label"], f["start"], f["end"], f["text"]):
+            errors.append(f"T{new} does not match source T{old}")
+    if len(id_map) != len(filtered["entities"]):
+        errors.append("id map size != filtered entity count")
+
+    return errors + check_events_and_jsonl("triples.ann", triples, jsonl_rows)
+
+
+def validate_full_triples(name, ann, jsonl_rows):
+    """Full-literal-triples version: every event has Attribute + Object, and
+    every T is used by an event (nothing outside a complete triple)."""
+    errors = []
+    for ev in ann["events"]:
+        if sorted(role for role, _ in ev["args"]) != ["Attribute", "Object"]:
+            errors.append(f"{name}: E{ev['eid']} is not a complete triple")
+    used = {ev["trigger"] for ev in ann["events"]} | {
+        int(ref[1:]) for ev in ann["events"] for _, ref in ev["args"]
+    }
+    for e in ann["entities"]:
+        if e["tid"] not in used:
+            errors.append(f"{name}: T{e['tid']} is not part of any triple")
+    for row in jsonl_rows:
+        if row["event_id"] is not None and row["status"] != "complete":
+            errors.append(f"{name} jsonl stmt {row['statement_no']}: event is not complete")
+    return errors
+
+
+def validate_derived(name, doc_text, filtered, ann, tid_map, jsonl_rows, exact_spans=False):
+    """A version derived from filtered.ann (literal / full triples): same
+    structural checks, plus every T comes from a filtered.ann T of the same
+    label with the same span -- or, unless `exact_spans`, a sub-span for a
+    narrowed Deontic."""
+    errors = check_ann(name, ann, doc_text)
+    errors += check_events_and_jsonl(name, ann, jsonl_rows)
+
+    filt = {e["tid"]: e for e in filtered["entities"]}
+    if sorted(tid_map) != [e["tid"] for e in ann["entities"]]:
+        errors.append(f"{name}: id map does not cover exactly its T lines")
+    for e in ann["entities"]:
+        src = filt.get(tid_map.get(e["tid"]))
+        if src is None or src["label"] != e["label"]:
+            errors.append(f"{name}: T{e['tid']} has no filtered.ann T of the same label")
+        elif not (src["start"] <= e["start"] and e["end"] <= src["end"]):
+            errors.append(f"{name}: T{e['tid']} is not inside filtered T{src['tid']}")
+        elif (exact_spans or e["label"] != "Deontic") and (src["start"], src["end"]) != (e["start"], e["end"]):
+            errors.append(f"{name}: T{e['tid']} changed offsets of filtered T{src['tid']}")
+    return errors
+
+
+def validate_literal(doc_text, filtered, literal, literal_map, jsonl_rows, name="triples_literal.ann"):
+    """Literal version: the derived-version checks, plus every linked span's
+    text must BE the (non-bracketed) Excel value."""
+    errors = validate_derived(name, doc_text, filtered, literal, literal_map, jsonl_rows)
+
+    for row in jsonl_rows:
+        for key, text_key, excel_key in (
+            ("attribute", "attribute_text", "attribute_excel"),
+            ("deontic", "deontic_text", "deontic"),
+            ("object", "object_text", "object_excel"),
+        ):
+            text, excel = row[text_key], row[excel_key]
+            if text is None:
+                continue
+            if excel is None or "[" in excel:
+                errors.append(f"{name} jsonl stmt {row['statement_no']}: {key} linked to a bracketed/empty cell")
+            elif fold_text(text, LITERAL_ALLOW_CASE_AND_ACCENTS) != fold_text(excel, LITERAL_ALLOW_CASE_AND_ACCENTS):
+                errors.append(
+                    f"{name} jsonl stmt {row['statement_no']}: {key} text {text!r} != Excel {excel!r}"
+                )
     return errors
 
 
@@ -138,7 +233,113 @@ def details(title, lines):
     return ["<details>", f"<summary>{title}</summary>", ""] + lines + ["", "</details>", ""]
 
 
-def write_summary(source, filtered, triples, filter_log, join_rows, edge_rows, errors):
+def literal_section(filtered, triples, join_rows, literal):
+    """Summary lines comparing the inferred and literal-only versions."""
+    lit_ann, lit_join, lit_log = literal["ann"], literal["join_rows"], literal["log"]
+    full_ann, full_jsonl = literal["full_ann"], literal["full_jsonl"]
+
+    # (column, ann, per-statement statuses) for every version
+    versions = [
+        ("inferred", triples, [r["status"] for r in join_rows]),
+        ("full triples", literal["inferred_full_ann"],
+         [r["status"] for r in literal["inferred_full_jsonl"]]),
+        ("literal", lit_ann, [r["status"] for r in lit_join]),
+        ("full literal triples", full_ann, [r["status"] for r in full_jsonl]),
+    ]
+    cols = [name for name, _, _ in versions]
+
+    def row(label, value_of):
+        return {"": label, **{name: value_of(ann, st) for name, ann, st in versions}}
+
+    L = ["## Versions compared", ""]
+    L += [
+        "- **inferred** (`triples.*`): every span the matchers found, incl. ones inferred from "
+        "non-literal Excel values.",
+        "- **full triples** (`triples_full.*`): inferred, restricted to statements with an "
+        "Attribute, Deontic **and** Object span.",
+        "- **literal** (`triples_literal.*`): only spans whose text is the Excel value (below).",
+        "- **full literal triples** (`triples_literal_full.*`): literal, restricted to complete "
+        "triples.",
+        "",
+    ]
+    rows = [
+        row(lbl, lambda ann, st, lbl=lbl: sum(1 for e in ann["entities"] if e["label"] == lbl))
+        for lbl in KEEP_LABELS
+    ]
+    rows += [
+        row("**T total**", lambda ann, st: len(ann["entities"])),
+        row("E (events)", lambda ann, st: len(ann["events"])),
+    ]
+    rows += [
+        row(f"rows: {k}", lambda ann, st, k=k: st.count(k))
+        for k in ("complete", "partial_event", "no_event")
+    ]
+    L += md_table(rows, [""] + cols) + [""]
+
+    L += ["## Literal-only version", ""]
+    L += [
+        "`data/triples_literal.ann` / `.jsonl` keep only spans whose text **is** the Excel cell "
+        "value, found inside the statement's own text: no bracketed (implicit) values, no "
+        "cross-references to earlier sentences, no case/accent-folded matches"
+        + (" (case/accent differences ARE allowed: `LITERAL_ALLOW_CASE_AND_ACCENTS = True`)"
+           if lit_log["allow_case_and_accents"] else "")
+        + ". Deontic spans are narrowed from the bold surface phrase to the Excel modal itself "
+        "(e.g. `deberán contar` → `deberán`). Same partial-event rule as the inferred version.",
+        "",
+    ]
+
+    L += [
+        "### Full literal triples",
+        "",
+        "`data/triples_literal_full.ann` / `.jsonl`: the literal version restricted to statements "
+        "whose Attribute, Deontic **and** Object are all literal. Every event is a complete "
+        "triple and every span belongs to one.",
+        "",
+    ]
+    L += md_table(
+        [
+            {"stmt_no": r["statement_no"], "event": r["event_id"], "attribute": r["attribute_text"],
+             "deontic": r["deontic_text"], "object": r["object_text"]}
+            for r in full_jsonl if r["status"] == "complete"
+        ],
+        ["stmt_no", "event", "attribute", "deontic", "object"],
+    ) + [""]
+
+    L += ["Why inferred spans were dropped:", ""]
+    L += md_table(
+        [{"element_reason": k, "count": v} for k, v in sorted(lit_log["dropped_reasons"].items(), key=lambda x: -x[1])],
+        ["element_reason", "count"],
+    ) + [""]
+    excluded = lit_log["case_or_accent_only_differences_excluded"]
+    if excluded and not lit_log["allow_case_and_accents"]:
+        L += [
+            "Of those, spans that differ from the Excel value **only** in case or accents "
+            "(would be kept with `LITERAL_ALLOW_CASE_AND_ACCENTS = True` in build_triples.py): "
+            + ", ".join(f"{k} = {v}" for k, v in excluded.items())
+            + ".",
+            "",
+        ]
+
+    inferred_by_stmt = {r["stmt_no"]: r for r in join_rows}
+    dropped = defaultdict(list)
+    for r in lit_join:
+        for role in ("attribute", "deontic", "object"):
+            reason = r.get(f"{role}_reason", "")
+            if reason.startswith("not literal"):
+                dropped[(role, reason)].append(
+                    {
+                        "stmt_no": r["stmt_no"],
+                        "excel_value": r[f"{role}_excel"],
+                        "inferred_span": inferred_by_stmt[r["stmt_no"]][f"{role}_text"],
+                    }
+                )
+    for (role, reason), rs in sorted(dropped.items(), key=lambda x: -len(x[1])):
+        L += details(f"{role}: {reason} ({len(rs)})", md_table(rs, ["stmt_no", "excel_value", "inferred_span"]))
+    L += ["Per-row detail: `reports/join_literal.csv`, `reports/edge_cases_literal.csv`.", ""]
+    return L
+
+
+def write_summary(source, filtered, triples, filter_log, join_rows, edge_rows, errors, literal):
     events = triples["events"]
     status = Counter(r["status"] for r in join_rows)
     edge_by_kind = defaultdict(list)
@@ -220,6 +421,8 @@ def write_summary(source, filtered, triples, filter_log, join_rows, edge_rows, e
         + ".",
         "",
     ]
+
+    L += literal_section(filtered, triples, join_rows, literal)
 
     L += ["## Unmatched rows", ""]
     L += [
@@ -305,7 +508,38 @@ def main():
     with open(EDGE_CASES_CSV_PATH, encoding="utf-8", newline="") as f:
         edge_rows = list(csv.DictReader(f))
 
+    def read_derived_version(ann_path, id_map_path, jsonl_path):
+        with open(id_map_path, encoding="utf-8", newline="") as f:
+            tid_map = {int(r["tid"][1:]): int(r["filtered_tid"][1:]) for r in csv.DictReader(f)}
+        with open(jsonl_path, encoding="utf-8") as f:
+            rows = [json.loads(line) for line in f]
+        return read_ann(ann_path), tid_map, rows
+
+    inferred_full_ann, inferred_full_map, inferred_full_jsonl = read_derived_version(
+        FULL_ANN_PATH, FULL_ID_MAP_PATH, FULL_JSONL_PATH
+    )
+    literal_ann, literal_map, literal_jsonl = read_derived_version(
+        LITERAL_ANN_PATH, LITERAL_ID_MAP_PATH, LITERAL_JSONL_PATH
+    )
+    full_ann, full_map, full_jsonl = read_derived_version(
+        LITERAL_FULL_ANN_PATH, LITERAL_FULL_ID_MAP_PATH, LITERAL_FULL_JSONL_PATH
+    )
+    with open(LITERAL_JOIN_CSV_PATH, encoding="utf-8", newline="") as f:
+        literal_join = list(csv.DictReader(f))
+    with open(LITERAL_LOG_PATH, encoding="utf-8") as f:
+        literal_log = json.load(f)
+
     errors = validate(doc_text, source, filtered, triples, id_map, jsonl_rows)
+    inferred_full_name = FULL_ANN_PATH.name
+    errors += validate_derived(
+        inferred_full_name, doc_text, filtered, inferred_full_ann, inferred_full_map,
+        inferred_full_jsonl, exact_spans=True,
+    )
+    errors += validate_full_triples(inferred_full_name, inferred_full_ann, inferred_full_jsonl)
+    errors += validate_literal(doc_text, filtered, literal_ann, literal_map, literal_jsonl)
+    full_name = LITERAL_FULL_ANN_PATH.name
+    errors += validate_literal(doc_text, filtered, full_ann, full_map, full_jsonl, name=full_name)
+    errors += validate_full_triples(full_name, full_ann, full_jsonl)
 
     with open(VALIDATION_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(
@@ -314,16 +548,38 @@ def main():
                 "entities_checked": len(triples["entities"]),
                 "events_checked": len(triples["events"]),
                 "jsonl_rows_checked": len(jsonl_rows),
+                "full_entities_checked": len(inferred_full_ann["entities"]),
+                "full_events_checked": len(inferred_full_ann["events"]),
+                "literal_entities_checked": len(literal_ann["entities"]),
+                "literal_events_checked": len(literal_ann["events"]),
+                "literal_jsonl_rows_checked": len(literal_jsonl),
+                "full_literal_entities_checked": len(full_ann["entities"]),
+                "full_literal_events_checked": len(full_ann["events"]),
                 "errors": errors,
             },
             f,
             ensure_ascii=False,
             indent=2,
         )
-    write_summary(source, filtered, triples, filter_log, join_rows, edge_rows, errors)
+    literal = {
+        "ann": literal_ann,
+        "join_rows": literal_join,
+        "log": literal_log,
+        "full_ann": full_ann,
+        "full_jsonl": full_jsonl,
+        "inferred_full_ann": inferred_full_ann,
+        "inferred_full_jsonl": inferred_full_jsonl,
+    }
+    write_summary(source, filtered, triples, filter_log, join_rows, edge_rows, errors, literal)
 
-    print(f"Entities checked: {len(triples['entities'])}, events: {len(triples['events'])}, "
-          f"jsonl rows: {len(jsonl_rows)}")
+    print(f"Inferred: entities {len(triples['entities'])}, events {len(triples['events'])}, "
+          f"jsonl rows {len(jsonl_rows)}")
+    print(f"Full triples: entities {len(inferred_full_ann['entities'])}, "
+          f"events {len(inferred_full_ann['events'])}")
+    print(f"Literal:  entities {len(literal_ann['entities'])}, events {len(literal_ann['events'])}, "
+          f"jsonl rows {len(literal_jsonl)}")
+    print(f"Full literal triples: entities {len(full_ann['entities'])}, "
+          f"events {len(full_ann['events'])}")
     print("Validation PASSED" if not errors else f"Validation FAILED: {len(errors)} errors")
     for e in errors[:20]:
         print(f"  {e}")

@@ -1,0 +1,40 @@
+T1	Attribute 69580 69664	el Ministerio del Medio Ambiente y el Ministerio de Transportes y Telecomunicaciones
+T2	Attribute 70365 70460	el Ministerio de Obras Públicas, el Ministerio de Vivienda y Urbanismo y el Ministerio de Salud
+T3	Attribute 73427 73462	Superintendencia del Medio Ambiente
+T4	Attribute 79394 79415	Ministerio de Energía
+T5	Attribute 81903 81924	Ministerio de Energía
+T6	Attribute 93418 93437	SEREMI de Salud RM 
+T7	Attribute 103151 103180	Ministerio del Medio Ambiente
+T8	Attribute 105625 105660	Superintendencia del Medio Ambiente
+T9	Attribute 132155 132180	SEREMI del Medio Ambiente
+T10	Attribute 138188 138223	Servicio de Vivienda y Urbanización
+T11	Deontic 69665 69672	deberán
+T12	Deontic 70499 70506	deberán
+T13	Deontic 73463 73469	deberá
+T14	Deontic 79451 79456	podrá
+T15	Deontic 81925 81930	podrá
+T16	Deontic 93437 93443	deberá
+T17	Deontic 103181 103187	deberá
+T18	Deontic 105661 105667	deberá
+T19	Deontic 132181 132187	deberá
+T20	Deontic 138264 138269	podrá
+T21	DirectObject 69688 69733	características e información de una etiqueta
+T22	DirectObject 70512 70609	filtros de partículas cerrados para el total de la maquinaria móvil fuera de ruta de construcción
+T23	DirectObject 73484 73510	protocolo de certificación
+T24	DirectObject 79650 79672	excepciones temporales
+T25	DirectObject 81938 81960	normas complementarias
+T26	DirectObject 93578 93644	información histórica de las fuentes fijas que se hayan registrado
+T27	DirectObject 103201 103290	lista de los grandes establecimientos sujetos a la exigencia de cumplimiento de reducción
+T28	DirectObject 105733 105812	informe con el estado de cumplimiento de la meta de emisión por establecimiento
+T29	DirectObject 132360 132393	actualización de sus instrumentos
+T30	DirectObject 138093 138115	resultados del estudio
+E1	Deontic:T11 Attribute:T1 Object:T21
+E2	Deontic:T12 Attribute:T2 Object:T22
+E3	Deontic:T13 Attribute:T3 Object:T23
+E4	Deontic:T14 Attribute:T4 Object:T24
+E5	Deontic:T15 Attribute:T5 Object:T25
+E6	Deontic:T16 Attribute:T6 Object:T26
+E7	Deontic:T17 Attribute:T7 Object:T27
+E8	Deontic:T18 Attribute:T8 Object:T28
+E9	Deontic:T19 Attribute:T9 Object:T29
+E10	Deontic:T20 Attribute:T10 Object:T30
