@@ -44,43 +44,31 @@ ROOT = V2_DIR
 TXT = TRIPLES_TXT_PATH
 OUT = TRIPLES_VIZ_HTML_PATH
 
-# (key, toggle label, .ann path, .jsonl path, one-line description shown above the cards)
+# (key, toggle label, .ann path, .jsonl path)
 MODES = [
     (
         "inferred",
-        "Inferred + literal",
+        "Inferido + literal",
         TRIPLES_ANN_PATH,
         TRIPLES_JSONL_PATH,
-        "Every span the matchers found, including ones inferred from a non-literal "
-        "Excel value: bracketed values (“[Titulares de] Buses” → “buses”, "
-        "“[deberá]” → “generará”), cross-references to an earlier sentence, "
-        "and case/accent-folded matches. Deontic = the bold surface phrase.",
     ),
     (
         "full",
-        "Full triples (inferred + literal)",
+        "Triples completos (inferido + literal)",
         FULL_ANN_PATH,
         FULL_JSONL_PATH,
-        "Inferred + literal, restricted to statements that have an Attribute, a Deontic and "
-        "an Object span: every event is a complete triple and every highlighted span belongs "
-        "to one. Spans may still be inferred from non-literal Excel values.",
     ),
     (
         "literal",
-        "Literal only",
+        "Solo literal",
         LITERAL_ANN_PATH,
         LITERAL_JSONL_PATH,
-        "Only spans whose text is exactly the Excel value (whitespace aside), inside the "
-        "statement’s own text. Deontic = the Excel modal itself (“deberán”, not "
-        "“deberán contar”). Fewer spans and triples.",
     ),
     (
         "literal_full",
-        "Full literal triples",
+        "Triples literales completos",
         LITERAL_FULL_ANN_PATH,
         LITERAL_FULL_JSONL_PATH,
-        "Only statements whose Attribute, Deontic and Object are all literal: every event is "
-        "a complete triple and every highlighted span belongs to one.",
     ),
 ]
 
@@ -586,7 +574,6 @@ HTML_SHELL = """<!doctype html>
   .toggle label:has(input:checked) {{ background: #1b1b1b; color: #fff; }}
   .toggle label:has(input:focus-visible) {{ outline: 2px solid #4a7bd0;
                                             outline-offset: -2px; }}
-  .mode-desc {{ max-width: 760px; font-size: 13px; }}
 </style></head><body>
 <h1>Triples — DTO-31_24</h1>
 <div class="toggle" role="radiogroup" aria-label="Version">{toggle}</div>
@@ -597,18 +584,12 @@ HTML_SHELL = """<!doctype html>
 """
 
 MODE_BODY = """<section class="mode" data-mode="{mode}"{hidden}>
-<p class="muted mode-desc">{description}</p>
-<p class="muted">{n_events} events · {n_terms} T-spans ({n_no_deontic} with no deontic) · text sliced from Capítulo III</p>
+<p class="muted">{n_events} eventos · texto desde Capítulo III</p>
 
-<h2>Per-event cards <span class="muted">({n_events})</span></h2>
+<h2>Tarjetas por evento <span class="muted">({n_events})</span></h2>
 {cards}
 
-<h2>Full text with inline spans</h2>
-<p class="muted">Hover a span to see its T#, role, and event ID; the small
-superscript next to each span is the E# it belongs to (comma-separated when
-the same text is reused by multiple events). A dashed <i>no deontic · St. N</i>
-chip marks spans of statement N that have no Deontic span in this version,
-so they are in no event.</p>
+<h2>Texto completo con spans en línea</h2>
 <div class="passage">{passage}</div>
 </section>
 """
@@ -640,8 +621,7 @@ TOGGLE_SCRIPT = """
 """
 
 
-def build_mode_body(mode, description, events, terms, tid_to_stmt, text,
-                    offset, hidden):
+def build_mode_body(mode, events, terms, tid_to_stmt, text, offset, hidden):
     span_to_events = build_span_to_events(terms, events)
     tids_in_events = {tid for ev in events for tids in ev["roles"].values()
                       for tid in tids}
@@ -649,22 +629,18 @@ def build_mode_body(mode, description, events, terms, tid_to_stmt, text,
                               id_prefix=f"{mode}-", tid_to_stmt=tid_to_stmt)
     passage = render_annotated_text(text, terms, offset, span_to_events,
                                     tid_to_stmt, tids_in_events)
-    in_slice = [t for t in terms.values() if t["start"] >= offset]
     return MODE_BODY.format(
         mode=mode,
         hidden=" hidden" if hidden else "",
-        description=html.escape(description),
         n_events=len(events),
-        n_terms=len(in_slice),
-        n_no_deontic=sum(1 for t in in_slice if t["id"] not in tids_in_events),
         cards=cards,
         passage=passage,
     )
 
 
 def build_html(versions, text, offset):
-    """`versions` is [(mode, label, description, events, terms,
-    tid_to_stmt)]; the first one is shown by default."""
+    """`versions` is [(mode, label, events, terms, tid_to_stmt)];
+    the first one is shown by default."""
     legend_items = [(k, v) for k, v in TYPE_COLORS.items()
                     if k != "DirectObject"]
     legend = " ".join(
@@ -675,12 +651,12 @@ def build_html(versions, text, offset):
         f'<label><input type="radio" name="mode" value="{mode}"'
         f'{" checked" if i == 0 else ""}> {html.escape(label)} '
         f'<span class="muted">({len(events)})</span></label>'
-        for i, (mode, label, _, events, _, _) in enumerate(versions)
+        for i, (mode, label, events, _, _) in enumerate(versions)
     )
     bodies = "".join(
-        build_mode_body(mode, description, events, terms, tid_to_stmt, text,
-                        offset, hidden=i > 0)
-        for i, (mode, _, description, events, terms, tid_to_stmt)
+        build_mode_body(mode, events, terms, tid_to_stmt, text, offset,
+                        hidden=i > 0)
+        for i, (mode, _, events, terms, tid_to_stmt)
         in enumerate(versions)
     )
     return HTML_SHELL.format(toggle=toggle, legend=legend, bodies=bodies,
@@ -691,9 +667,9 @@ def main():
     raw_text = TXT.read_text(encoding="utf-8")
     text, offset = slice_from_chapter_iii(raw_text)
     versions = []
-    for mode, label, ann_path, jsonl_path, description in MODES:
+    for mode, label, ann_path, jsonl_path in MODES:
         terms, events = parse_ann(ann_path)
-        versions.append((mode, label, description, events, terms,
+        versions.append((mode, label, events, terms,
                          load_tid_to_stmt(jsonl_path)))
         print(f"{mode}: {len(events)} events, {len(terms)} spans "
               f"({ann_path.relative_to(ROOT.parent)})")
