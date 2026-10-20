@@ -1,180 +1,85 @@
-"""Render triples.ann as per-event arc diagrams + detail rows + inline text.
+"""Render triples.ann (T + binary R lines) as:
 
-Each event is shown as a displacy manual-dep arc diagram at the top of its
-card, with the full text in rows underneath. The arc view uses short labels
-(T#) so arcs never collide with their pseudo-tokens; the full literal text
-lives below in detail rows (where line wrapping handles any length).
+  - a top banner with the non-literal ratio for each role, so a reader
+    knows up front what fraction of Excel values the Excel describes but
+    the document doesn't carry verbatim;
+  - one card per Excel row that produced at least one literal span: a
+    small arc diagram with the row's Attribute / Deontic / DirectObject
+    pseudo-tokens and one arc per binary relation present (AttrDeontic /
+    AttrObject / DeonticObject), plus a detail row per span. Rows whose
+    cells exist in Excel but didn't land literally in the text are listed
+    separately with the reason;
+  - the full document text from Capítulo III onward with every span
+    highlighted inline, each with a chip pointing back to its statement.
 
-- Full-text view: sliced to start at Capítulo III (nothing before that is
-  tagged). Each span is a nested <span> with its role color and an E# chip,
-  so a reader can trace shared text back to its event.
-
-All versions written by build_triples.py are rendered into the same page,
-with a toggle at the top: "Inferred + literal" (triples.ann), "Full triples
-(inferred + literal)" (triples_full.ann), "Literal
-only" (triples_literal.ann) and "Full literal triples"
-(triples_literal_full.ann). Element ids are prefixed per version
-("inferred-E5", "literal-E5") because E/T numbering differs between them.
-Each version's .jsonl supplies the statement number of every T, so spans
-that belong to no event (their statement has no Deontic span in that
-version) are marked "no deontic · St. N" instead of carrying no chip.
+Everything is one HTML page -- no mode toggle. There is only one version.
 """
 from __future__ import annotations
 
 import html
 import json
 import re
-from collections import defaultdict
 
 from v2_paths import (
-    FULL_ANN_PATH,
-    FULL_JSONL_PATH,
-    LITERAL_ANN_PATH,
-    LITERAL_FULL_ANN_PATH,
-    LITERAL_FULL_JSONL_PATH,
-    LITERAL_JSONL_PATH,
+    LITERACY_JSON_PATH,
     TRIPLES_ANN_PATH,
     TRIPLES_JSONL_PATH,
     TRIPLES_TXT_PATH,
     TRIPLES_VIZ_HTML_PATH,
-    V2_DIR,
 )
 
-ROOT = V2_DIR
-TXT = TRIPLES_TXT_PATH
-OUT = TRIPLES_VIZ_HTML_PATH
-
-# (key, toggle label, .ann path, .jsonl path)
-MODES = [
-    (
-        "inferred",
-        "Inferido + literal",
-        TRIPLES_ANN_PATH,
-        TRIPLES_JSONL_PATH,
-    ),
-    (
-        "full",
-        "Triples completos (inferido + literal)",
-        FULL_ANN_PATH,
-        FULL_JSONL_PATH,
-    ),
-    (
-        "literal",
-        "Solo literal",
-        LITERAL_ANN_PATH,
-        LITERAL_JSONL_PATH,
-    ),
-    (
-        "literal_full",
-        "Triples literales completos",
-        LITERAL_FULL_ANN_PATH,
-        LITERAL_FULL_JSONL_PATH,
-    ),
-]
-
-TID_KEYS = ("attribute_tid", "deontic_tid", "object_tid")
-
-
-def load_tid_to_stmt(jsonl_path):
-    """T id -> Statement No., from build_triples.py's jsonl sidecar."""
-    tid_to_stmt = {}
-    with open(jsonl_path, encoding="utf-8") as f:
-        for line in f:
-            row = json.loads(line)
-            for key in TID_KEYS:
-                if row[key]:
-                    tid_to_stmt[row[key]] = row["statement_no"]
-    return tid_to_stmt
-
-
-def stmt_label(stmt_nos):
-    return "St. " + ",".join(str(n) for n in sorted(set(stmt_nos))) if stmt_nos else ""
-
 TLINE = re.compile(r"^(T\d+)\t(\S+) (\d+) (\d+)\t(.*)$")
-ELINE = re.compile(r"^(E\d+)\t(.+)$")
+RLINE = re.compile(r"^(R\d+)\t(\S+) Arg1:(T\d+) Arg2:(T\d+)$")
 
-# DirectObject is colored the same as Object and displayed under the generic
-# "Object" label — they are the same role for the reader.
 TYPE_COLORS = {
     "Deontic":      "#f6c177",
     "Attribute":    "#9ccfd8",
-    "Object":       "#c4a7e7",
     "DirectObject": "#c4a7e7",
 }
 DEFAULT_COLOR = "#dcd7d2"
+ROLE_LABELS = ("Attribute", "Deontic", "DirectObject")
 
-ROLE_ORDER = ("Attribute", "Deontic", "Object", "DirectObject")
+RELATION_PAIR = {
+    "AttrDeontic":   ("Attribute", "Deontic"),
+    "AttrObject":    ("Attribute", "DirectObject"),
+    "DeonticObject": ("Deontic", "DirectObject"),
+}
 
-# Capítulo III is where Attribute/Deontic/Object tagging actually begins;
-# the earlier chapters are prelude and would render as plain, unmarked text.
 CHAPTER_MARKER = "CAPÍTULO III"
 
 
 def parse_ann(path):
-    terms = {}
-    events = []
+    terms, relations = {}, []
     for raw in path.read_text(encoding="utf-8").splitlines():
-        if m := TLINE.match(raw):
+        m = TLINE.match(raw)
+        if m:
             tid, ttype, start, end, text = m.groups()
             terms[tid] = {"id": tid, "type": ttype,
                           "start": int(start), "end": int(end),
                           "text": text}
-        elif m := ELINE.match(raw):
-            eid, body = m.groups()
-            roles: dict[str, list[str]] = defaultdict(list)
-            trigger_role = trigger_tid = None
-            for i, tok in enumerate(body.split()):
-                role, tid = tok.split(":")
-                roles[role].append(tid)
-                if i == 0:
-                    trigger_role, trigger_tid = role, tid
-            events.append({"id": eid,
-                           "trigger_role": trigger_role,
-                           "trigger_tid": trigger_tid,
-                           "roles": dict(roles)})
-    return terms, events
+            continue
+        m = RLINE.match(raw)
+        if m:
+            rid, label, a1, a2 = m.groups()
+            relations.append({"id": rid, "label": label, "arg1": a1, "arg2": a2})
+    return terms, relations
 
 
-def display_role(role):
-    return "Object" if role == "DirectObject" else role
+def role_of(label):
+    return label
 
 
-def role_color(role):
-    return TYPE_COLORS.get(role, DEFAULT_COLOR)
+def role_color(label):
+    return TYPE_COLORS.get(label, DEFAULT_COLOR)
 
 
-def build_span_to_events(terms, events):
-    """Group events by physical span (type, start, end).
+# --- Arc diagram -------------------------------------------------------------
+# Hand-rolled SVG: one rounded box per role present on the row, variable
+# width, "T# · Role" caption underneath, round cubic-bezier arcs for each
+# binary relation.
 
-    Each Attribute/Object occurrence gets its own T# in triples.ann even when
-    two triples point at the exact same source text, so a plain tid-indexed
-    lookup never shows that "fuentes estacionarias" is shared across E57–E59.
-    Grouping by offsets makes that overlap visible.
-    """
-    key_to_events: dict[tuple, list[str]] = defaultdict(list)
-    for ev in events:
-        for tids in ev["roles"].values():
-            for tid in tids:
-                t = terms.get(tid)
-                if t is None:
-                    continue
-                key = (t["type"], t["start"], t["end"])
-                key_to_events[key].append(ev["id"])
-    return key_to_events
-
-
-def span_key(t):
-    return (t["type"], t["start"], t["end"])
-
-
-# --- Custom arc-diagram renderer -------------------------------------------
-# Hand-rolled SVG instead of spaCy displacy so we can: show the full raw text
-# as the pseudo-token (wrapping onto multiple lines), make per-token boxes
-# variable width, draw round cubic-bezier arcs that scale with span distance,
-# and label each token with "T# · Role" in grey below the box.
-
-_CHAR_W      = 7.2    # ≈ Inter 13px avg char width
-_TAG_CHAR_W  = 6.4    # Inter 11px
+_CHAR_W      = 7.2
+_TAG_CHAR_W  = 6.4
 _LINE_H      = 18
 _TAG_LINE_H  = 14
 _TAG_GAP     = 6
@@ -183,12 +88,10 @@ _BOX_PAD_Y   = 7
 _TOKEN_GAP   = 32
 _ARC_BASE_H  = 36
 _ARC_PER_HOP = 22
-_MAX_CHARS   = 32     # wrap target per visual line inside a token
+_MAX_CHARS   = 32
 
 
 def _wrap(text, max_chars=_MAX_CHARS):
-    """Greedy word-wrap. Collapses whitespace first so brat newlines don't
-    create empty lines."""
     tokens = " ".join(text.split()).split(" ")
     lines, cur, cur_len = [], [], 0
     for w in tokens:
@@ -204,58 +107,36 @@ def _wrap(text, max_chars=_MAX_CHARS):
     return lines or [""]
 
 
-def render_event_arcs(ev, terms, id_prefix=""):
-    """Build an SVG with one rounded box per role (full text, multi-line),
-    a grey "T# · Role" caption below, and round bezier arcs from the trigger
-    to each other role."""
-    present = []
-    for role, tids in ev["roles"].items():
-        for tid in tids:
-            t = terms.get(tid)
-            if t is None:
-                continue
-            present.append((role, tid, t))
-    present.sort(key=lambda rti: (rti[2]["start"], rti[2]["end"]))
-    if not present:
+def render_row_arcs(spans, row_relations):
+    """`spans` is [(label, tid, term)] in display order; `row_relations` is
+    [(label, src_tid, dst_tid)]. Returns an SVG string, or "" if nothing to draw."""
+    if not spans:
         return ""
-
-    # Lay out token boxes side by side.
-    tokens = []
+    tokens, index_of = [], {}
     x = _BOX_PAD_X
-    for role, tid, t in present:
-        role_disp = display_role(role)
-        lines = _wrap(t["text"])
-        tag = f"{tid} · {role_disp}"
+    for i, (label, tid, term) in enumerate(spans):
+        lines = _wrap(term["text"])
+        tag = f"{tid} · {label}"
         text_w = max(len(ln) for ln in lines) * _CHAR_W
         tag_w = len(tag) * _TAG_CHAR_W
         box_w = max(text_w, tag_w) + 2 * _BOX_PAD_X
-        tokens.append({
-            "tid": tid, "role": role, "role_disp": role_disp,
-            "lines": lines, "tag": tag,
-            "left_x": x, "box_w": box_w,
-            "center_x": x + box_w / 2,
-            "is_trigger": tid == ev["trigger_tid"],
-        })
+        tokens.append({"label": label, "tid": tid, "lines": lines, "tag": tag,
+                       "left_x": x, "box_w": box_w, "center_x": x + box_w / 2})
+        index_of[tid] = i
         x += box_w + _TOKEN_GAP
     total_w = x - _TOKEN_GAP + _BOX_PAD_X
 
-    # Trigger-rooted arcs (left/right of the trigger).
-    trigger_idx = next((i for i, tk in enumerate(tokens)
-                        if tk["is_trigger"]), None)
     arcs = []
-    if trigger_idx is not None:
-        for i, tk in enumerate(tokens):
-            if i == trigger_idx:
-                continue
-            lo, hi = sorted([trigger_idx, i])
-            hops = hi - lo
-            arcs.append({"lo": lo, "hi": hi,
-                         "dest": i,
-                         "label": tk["role_disp"],
-                         "h": _ARC_BASE_H + (hops - 1) * _ARC_PER_HOP})
+    for rel_label, src_tid, dst_tid in row_relations:
+        if src_tid not in index_of or dst_tid not in index_of:
+            continue
+        lo = min(index_of[src_tid], index_of[dst_tid])
+        hi = max(index_of[src_tid], index_of[dst_tid])
+        hops = hi - lo
+        arcs.append({"lo": lo, "hi": hi, "dest": index_of[dst_tid],
+                     "label": rel_label, "h": _ARC_BASE_H + (hops - 1) * _ARC_PER_HOP})
     max_arc_h = max((a["h"] for a in arcs), default=0)
 
-    # Vertical layout: arcs on top, token boxes below, grey tag under box.
     arc_top_pad = 20
     box_top_y = arc_top_pad + max_arc_h + 6
     max_lines = max(len(tk["lines"]) for tk in tokens)
@@ -272,26 +153,20 @@ def render_event_arcs(ev, terms, id_prefix=""):
         f'font-size="13">'
     ]
 
-    # Arcs (behind boxes).
-    arc_anchor_y = box_top_y  # arcs land on the top edge of each box
+    arc_anchor_y = box_top_y
     for ai, arc in enumerate(arcs):
         x1 = tokens[arc["lo"]]["center_x"]
         x2 = tokens[arc["hi"]]["center_x"]
         y_top = arc_anchor_y - arc["h"]
-        path_id = f'arc-{id_prefix}{ev["id"]}-{ai}'
+        path_id = f'arc-{ai}'
         d = (f"M {x1:.1f},{arc_anchor_y:.1f} "
              f"C {x1:.1f},{y_top:.1f} {x2:.1f},{y_top:.1f} "
              f"{x2:.1f},{arc_anchor_y:.1f}")
-        out.append(
-            f'<path id="{path_id}" d="{d}" fill="none" '
-            f'stroke="#9a9a9a" stroke-width="1.4"/>'
-        )
-        # Arrowhead at destination end only.
+        out.append(f'<path id="{path_id}" d="{d}" fill="none" '
+                   f'stroke="#9a9a9a" stroke-width="1.4"/>')
         dest_x = tokens[arc["dest"]]["center_x"]
-        out.append(
-            f'<path d="M {dest_x:.1f},{arc_anchor_y:.1f} '
-            f'l -4,-7 l 8,0 z" fill="#9a9a9a"/>'
-        )
+        out.append(f'<path d="M {dest_x:.1f},{arc_anchor_y:.1f} '
+                   f'l -4,-7 l 8,0 z" fill="#9a9a9a"/>')
         out.append(
             f'<text font-size="11" fill="#555">'
             f'<textPath xlink:href="#{path_id}" startOffset="50%" '
@@ -299,22 +174,17 @@ def render_event_arcs(ev, terms, id_prefix=""):
             f'{html.escape(arc["label"])}</textPath></text>'
         )
 
-    # Token boxes + text.
     for tk in tokens:
-        fill = role_color(tk["role"])
-        stroke = "rgba(0,0,0,.35)" if tk["is_trigger"] else "rgba(0,0,0,.1)"
-        stroke_w = 1.5 if tk["is_trigger"] else 1
+        fill = role_color(tk["label"])
         out.append(
             f'<rect x="{tk["left_x"]:.1f}" y="{box_top_y:.1f}" '
             f'width="{tk["box_w"]:.1f}" height="{box_h:.1f}" '
             f'rx="6" ry="6" fill="{fill}" fill-opacity=".55" '
-            f'stroke="{stroke}" stroke-width="{stroke_w}"/>'
+            f'stroke="rgba(0,0,0,.1)" stroke-width="1"/>'
         )
-        # Center the lines vertically within the box.
         text_block_h = len(tk["lines"]) * _LINE_H
-        first_baseline = (box_top_y + (box_h - text_block_h) / 2
-                          + _LINE_H - 5)
-        out.append(f'<text text-anchor="middle" fill="#1b1b1b">')
+        first_baseline = (box_top_y + (box_h - text_block_h) / 2 + _LINE_H - 5)
+        out.append('<text text-anchor="middle" fill="#1b1b1b">')
         for li, line in enumerate(tk["lines"]):
             y = first_baseline + li * _LINE_H
             out.append(
@@ -322,81 +192,129 @@ def render_event_arcs(ev, terms, id_prefix=""):
                 f'{html.escape(line)}</tspan>'
             )
         out.append('</text>')
-        # Grey T# · Role caption underneath.
         out.append(
             f'<text text-anchor="middle" font-size="11" '
             f'fill="#7a7a7a" font-family="ui-monospace, monospace" '
             f'x="{tk["center_x"]:.1f}" y="{tag_y:.1f}">'
             f'{html.escape(tk["tag"])}</text>'
         )
-
     out.append('</svg>')
     return f'<div class="arc-view">{"".join(out)}</div>'
 
 
-def render_event_card(ev, terms, span_to_events, id_prefix="", tid_to_stmt=None):
-    pairs = []
-    seen_roles = set()
-    for role in ROLE_ORDER:
-        for tid in ev["roles"].get(role, []):
-            pairs.append((role, tid))
-            seen_roles.add(role)
-    for role, tids in ev["roles"].items():
-        if role in seen_roles:
-            continue
-        for tid in tids:
-            pairs.append((role, tid))
+# --- Row cards ---------------------------------------------------------------
 
-    rows = []
-    for role, tid in pairs:
-        t = terms.get(tid)
-        if t is None:
+ROLE_KEYS_IN_ORDER = (
+    ("attribute", "Attribute"),
+    ("deontic",   "Deontic"),
+    ("object",    "DirectObject"),
+)
+
+TIER_LABEL = {
+    "verbatim":    "verbatim",
+    "fuzzy":       "fuzzy",
+    "non_literal": "no match",
+}
+
+
+def _tier_badge(tier):
+    label = TIER_LABEL.get(tier) or (tier or "")
+    return f'<span class="tier-badge tier-{tier}">{html.escape(label)}</span>'
+
+
+def render_row_card(row, terms):
+    stmt_no = row["statement_no"]
+    anchor = f"stmt-{stmt_no}"
+
+    spans = []
+    for key, label in ROLE_KEYS_IN_ORDER:
+        tid = row[f"{key}_tid"]
+        if tid is None:
             continue
-        peers = [e for e in span_to_events.get(span_key(t), [])
-                 if e != ev["id"]]
-        shared = (f' <span class="shared">mismo texto también en '
-                  f'{", ".join(sorted(set(peers), key=_eid_sort))}</span>'
-                  if peers else "")
-        rows.append(
-            '<div class="row">'
-            f'<div class="role-chip" style="background:{role_color(role)}">'
-            f'{display_role(role)}</div>'
-            '<div class="row-body">'
-            f'<div class="row-meta">{tid}'
-            f' <span class="offs">[{t["start"]}&ndash;{t["end"]}]</span>'
-            f'{shared}</div>'
-            f'<div class="row-text">{html.escape(t["text"].strip())}</div>'
-            '</div></div>'
+        term = terms.get(tid)
+        if term is None:
+            continue
+        spans.append((label, tid, term))
+
+    row_relations = [(rel["label"], rel["arg1"], rel["arg2"])
+                     for rel in row.get("relations", [])]
+    arcs = render_row_arcs(spans, row_relations)
+
+    rows_html = []
+    for key, label in ROLE_KEYS_IN_ORDER:
+        excel = row[f"{key}_excel"]
+        literal = row[f"{key}_literal"]
+        tid = row[f"{key}_tid"]
+        text = row[f"{key}_text"]
+        reason = row[f"{key}_reason"]
+        tier = row[f"{key}_tier"]
+        if excel is None and tid is None:
+            # Empty Excel cell AND no span. Skip the row entirely.
+            continue
+
+        meta_parts = [_tier_badge(tier)]
+        if literal and tid:
+            meta_parts.append(
+                f'<span class="offs">{tid} '
+                f'[{row[f"{key}_span"][0]}&ndash;{row[f"{key}_span"][1]}]</span>'
+            )
+        meta = " ".join(meta_parts)
+
+        if literal and tid:
+            body_lines = [f'<div class="row-text">{html.escape(text)}</div>']
+            if tier == "fuzzy":
+                # Show the Excel version alongside so a reviewer can see what
+                # was folded (case, accents, both).
+                body_lines.append(
+                    f'<div class="row-excel"><span class="row-excel-tag">Excel</span>'
+                    f'{html.escape(excel or "")}</div>'
+                )
+            body = "".join(body_lines)
+        else:
+            tag = f' <span class="muted small">({html.escape(reason)})</span>' if reason else ""
+            body = (f'<div class="row-text non-literal">'
+                    f'<span class="row-excel-tag">Excel</span>'
+                    f'{html.escape(excel or "")}{tag}</div>')
+
+        rows_html.append(
+            f'<div class="row" data-role="{key}">'
+            f'<div class="role-chip" style="background:{role_color(label)}">{label}</div>'
+            f'<div class="row-body"><div class="row-meta">{meta}</div>{body}</div>'
+            '</div>'
         )
 
-    trig_term = terms.get(ev["trigger_tid"], {})
-    anchor_id = f'{id_prefix}{ev["id"]}'
-    stmt_no = (tid_to_stmt or {}).get(ev["trigger_tid"])
-    stmt = (f'<span class="muted stmt">{stmt_label([stmt_no])}</span>'
-            if stmt_no is not None else "")
+    rel_badges = ""
+    if row_relations:
+        rel_badges = " ".join(
+            f'<span class="rel-badge">{html.escape(label)}</span>'
+            for label, _, _ in row_relations
+        )
+
+    status = row["status"]
+    status_chip = f'<span class="status-chip status-{status}">{status}</span>'
     header = (
-        f'<h3 id="{anchor_id}">'
-        f'<a class="anchor" href="#{anchor_id}">{ev["id"]}</a>{stmt}'
-        f'<span class="muted"> — {display_role(ev["trigger_role"])}:</span> '
-        f'<span class="trig-text">'
-        f'{html.escape(trig_term.get("text", "").strip())}</span></h3>'
+        f'<h3 id="{anchor}">'
+        f'<a class="anchor" href="#{anchor}">St. {stmt_no}</a> '
+        f'{status_chip}'
+        f'{rel_badges}'
+        f'</h3>'
     )
-    arcs = render_event_arcs(ev, terms, id_prefix)
-    return (f'<section class="event-card">{header}'
-            f'{arcs}{"".join(rows)}</section>')
+
+    # data-roles-present / data-roles-literal drive the role filter so a card
+    # can be hidden when none of its visible roles are selected.
+    roles_present = ",".join(
+        key for key, _ in ROLE_KEYS_IN_ORDER
+        if (row[f"{key}_excel"] is not None) or row[f"{key}_tid"]
+    )
+    roles_literal = ",".join(
+        key for key, _ in ROLE_KEYS_IN_ORDER if row[f"{key}_tid"]
+    )
+    return (f'<section class="row-card" data-roles-present="{roles_present}" '
+            f'data-roles-literal="{roles_literal}">{header}{arcs}'
+            f'<div class="row-grid">{"".join(rows_html)}</div></section>')
 
 
-def build_event_cards(events, terms, span_to_events, id_prefix="",
-                      tid_to_stmt=None):
-    return "".join(render_event_card(ev, terms, span_to_events, id_prefix,
-                                     tid_to_stmt)
-                   for ev in events)
-
-
-def _eid_sort(eid):
-    m = re.match(r"E(\d+)", eid)
-    return int(m.group(1)) if m else 0
-
+# --- Annotated full text -----------------------------------------------------
 
 def slice_from_chapter_iii(text):
     idx = text.find(CHAPTER_MARKER)
@@ -405,28 +323,18 @@ def slice_from_chapter_iii(text):
     return text[idx:], idx
 
 
-def render_annotated_text(text, terms, offset, span_to_events, tid_to_stmt,
-                          tids_in_events):
-    """Highlight each physical span in `text` with its role color + E# chip.
-
-    Spans are deduplicated by (type, start, end): identical re-tagging (e.g.
-    the 15 Attribute T#s on "Superintendencia del Medio Ambiente") collapses
-    into one highlighted range, and the chip lists every event that uses it.
-    T#s of that range that are in no event (their statement has no Deontic
-    span in this version) get a "no deontic · St. N" chip instead.
-    Overlapping spans nest with the classic split-and-reopen technique so
-    the HTML is valid even when a longer span contains a shorter one.
-    """
-    unique: dict[tuple, dict] = {}
+def render_annotated_text(text, terms, offset, tid_to_stmt, tid_to_tier):
+    """Overlay every span onto the raw text, nesting with the split-and-reopen
+    technique so overlapping spans produce valid HTML. Each inline span
+    carries its role (so the role filter can hide it) and its match tier
+    (verbatim = solid underline; fuzzy = dashed underline + ~ marker)."""
+    unique = {}
     for t in terms.values():
         if t["start"] < offset or t["end"] > offset + len(text):
             continue
-        unique.setdefault(span_key(t), {
-            "type": t["type"],
-            "start": t["start"],
-            "end": t["end"],
-            "tids": [],
-        })["tids"].append(t["id"])
+        key = (t["type"], t["start"], t["end"])
+        unique.setdefault(key, {"type": t["type"], "start": t["start"],
+                                "end": t["end"], "tids": []})["tids"].append(t["id"])
     spans = list(unique.values())
 
     boundaries = []
@@ -434,48 +342,48 @@ def render_annotated_text(text, terms, offset, span_to_events, tid_to_stmt,
         boundaries.append((s["start"] - offset, 1, s))
         boundaries.append((s["end"] - offset, 0, s))
     boundaries.sort(key=lambda e: (
-        e[0],
-        e[1],
+        e[0], e[1],
         -(e[2]["end"] - e[2]["start"]) if e[1] == 1
         else (e[2]["end"] - e[2]["start"]),
     ))
 
-    def _events_for(s):
-        return sorted(set(span_to_events.get(
-            (s["type"], s["start"], s["end"]), [])), key=_eid_sort)
+    def _stmt_label(s):
+        stmt_nos = sorted({tid_to_stmt.get(tid) for tid in s["tids"] if tid in tid_to_stmt})
+        stmt_nos = [n for n in stmt_nos if n is not None]
+        return "St. " + ",".join(str(n) for n in stmt_nos) if stmt_nos else ""
 
-    def _no_deontic(s):
-        """Label for this range's T#s that belong to no event, or ""."""
-        orphans = [tid for tid in s["tids"] if tid not in tids_in_events]
-        if not orphans:
-            return ""
-        return " · ".join(filter(None, [
-            "no deontic", stmt_label([tid_to_stmt[t] for t in orphans
-                                      if t in tid_to_stmt])]))
+    label_to_role = {"Attribute": "attribute", "Deontic": "deontic",
+                     "DirectObject": "object"}
+
+    def _span_tier(s):
+        """verbatim beats fuzzy if a single physical span was tagged twice."""
+        tiers = {tid_to_tier.get(tid) for tid in s["tids"]}
+        tiers.discard(None)
+        if "verbatim" in tiers:
+            return "verbatim"
+        if "fuzzy" in tiers:
+            return "fuzzy"
+        return "unknown"
 
     def open_tag(s):
-        role_disp = display_role(s["type"])
-        eids = _events_for(s)
-        eid_str = " · ".join(filter(None, [",".join(eids), _no_deontic(s)]))
         tids = ",".join(s["tids"])
-        title = f'{tids} · {role_disp} · {eid_str}'
-        return (f'<span class="ann" style="background:{role_color(s["type"])}"'
+        tier = _span_tier(s)
+        title = f'{tids} · {s["type"]} · {tier} · {_stmt_label(s)}'
+        role_key = label_to_role.get(s["type"], "")
+        return (f'<span class="ann ann-{role_key} ann-tier-{tier}" '
+                f'style="background:{role_color(s["type"])}"'
                 f' title="{html.escape(title)}">')
 
     def close_tag(s, final):
         if not final:
             return "</span>"
-        eids = _events_for(s)
-        chip = (f'<sup class="eid">{",".join(eids)}</sup>'
-                if eids else '')
-        no_deontic = _no_deontic(s)
-        if no_deontic:
-            chip += f'<sup class="eid no-deontic">{html.escape(no_deontic)}</sup>'
-        return f'{chip}</span>'
+        chip = _stmt_label(s)
+        marker = '<sup class="fuzzy-marker" title="fuzzy match (case/accent-folded)">~</sup>' \
+            if _span_tier(s) == "fuzzy" else ""
+        chip_html = f'<sup class="eid">{html.escape(chip)}</sup>' if chip else ""
+        return f'{marker}{chip_html}</span>'
 
-    out: list[str] = []
-    stack: list[dict] = []
-    pos = 0
+    out, stack, pos = [], [], 0
     for ev_pos, kind, span in boundaries:
         if ev_pos > pos:
             out.append(html.escape(text[pos:ev_pos]))
@@ -501,6 +409,8 @@ def render_annotated_text(text, terms, offset, span_to_events, tid_to_stmt,
     return "".join(out)
 
 
+# --- Page shell --------------------------------------------------------------
+
 HTML_SHELL = """<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <title>Triples visualization — DTO-31_24</title>
@@ -512,41 +422,91 @@ HTML_SHELL = """<!doctype html>
   h2 {{ margin: 2rem 0 .5rem; font-size: 18px; }}
   h3 {{ margin: 0; font-size: 14px; }}
   .muted {{ color: #777; font-weight: normal; }}
+  .small {{ font-size: 12px; }}
+
   .legend {{ margin: .5rem 0 1.5rem; display: flex; gap: 8px;
              flex-wrap: wrap; align-items: center; }}
   .chip {{ display: inline-block; padding: 2px 10px; border-radius: 10px;
            font-size: 12px; }}
 
-  /* --- Per-event cards --- */
-  .event-card {{ border: 1px solid #ececec; border-radius: 8px;
-                 padding: .75rem 1rem; margin: .75rem 0; background: #fff; }}
-  .event-card h3 {{ display: flex; gap: 6px; align-items: baseline;
-                     flex-wrap: wrap; }}
-  .event-card h3 .anchor {{ color: #555; text-decoration: none;
-                             font-family: ui-monospace, monospace;
-                             font-size: 12px; }}
-  .event-card h3 .trig-text {{ font-weight: 600; }}
-  .row {{ display: grid; grid-template-columns: 110px 1fr;
-          gap: .5rem 1rem; margin-top: .5rem; align-items: start; }}
+  .literacy {{ display: grid; grid-template-columns: repeat(3, 1fr);
+               gap: .75rem; margin: .5rem 0 1rem; }}
+  .lit-card {{ border: 1px solid #ececec; border-radius: 8px;
+               padding: .6rem .85rem; background: #fff; }}
+  .lit-card .lit-head {{ display: flex; align-items: baseline; gap: .5rem;
+                         justify-content: space-between; }}
+  .lit-card .lit-ratio {{ font-size: 22px; font-weight: 600; }}
+  .lit-card .lit-sub {{ color: #777; font-size: 12px; }}
+  .lit-bar {{ display: flex; height: 8px; margin-top: .35rem;
+              background: #eee; border-radius: 4px; overflow: hidden; }}
+  .lit-bar > span {{ display: block; height: 100%; }}
+  .lit-bar .seg-verbatim    {{ background: #7fb286; }}
+  .lit-bar .seg-fuzzy       {{ background: #e2c477; }}
+  .lit-bar .seg-non_literal {{ background: #d08b8b; }}
+  .lit-breakdown {{ color: #666; font-size: 12px; margin-top: .25rem;
+                     display: flex; gap: .5rem; flex-wrap: wrap; }}
+  .lit-breakdown .seg {{ display: inline-flex; align-items: center;
+                          gap: 4px; }}
+  .lit-breakdown .dot {{ width: 8px; height: 8px; border-radius: 50%;
+                          display: inline-block; }}
+
+  /* --- Row cards --- */
+  .row-card {{ border: 1px solid #ececec; border-radius: 8px;
+               padding: .75rem 1rem; margin: .75rem 0; background: #fff; }}
+  .row-card h3 {{ display: flex; gap: 6px; align-items: baseline;
+                   flex-wrap: wrap; }}
+  .row-card h3 .anchor {{ color: #555; text-decoration: none;
+                           font-family: ui-monospace, monospace;
+                           font-size: 12px; }}
+  .status-chip {{ font-family: ui-monospace, monospace; font-size: 11px;
+                   padding: 2px 8px; border-radius: 10px;
+                   background: #eee; color: #333; }}
+  .status-complete {{ background: #d7eadc; color: #1e4a2d; }}
+  .status-pair     {{ background: #e4e4f2; color: #333; }}
+  .status-single   {{ background: #f4e4d8; color: #624020; }}
+  .status-no_literal_span {{ background: #f4d8d8; color: #7a2626; }}
+  .status-all_cells_empty {{ background: #f0f0f0; color: #666; }}
+  .rel-badge {{ font-family: ui-monospace, monospace; font-size: 11px;
+                 padding: 2px 8px; border-radius: 10px;
+                 background: #efefef; color: #333; border: 1px solid #e0e0e0; }}
+
+  .row-grid .row {{ display: grid; grid-template-columns: 120px 1fr;
+                     gap: .5rem 1rem; margin-top: .5rem; align-items: start; }}
   .role-chip {{ font-size: 11px; text-align: center;
                 padding: 3px 8px; border-radius: 6px;
                 font-weight: 600; color: #1b1b1b; }}
   .row-body {{ min-width: 0; }}
   .row-meta {{ color: #666; font-size: 12px;
-               font-family: ui-monospace, monospace; }}
+               font-family: ui-monospace, monospace;
+               display: flex; gap: 6px; align-items: center;
+               flex-wrap: wrap; }}
   .row-meta .offs {{ color: #999; }}
-  .row-meta .shared {{ color: #888; margin-left: 6px;
-                        font-family: Inter, sans-serif; font-style: italic; }}
   .row-text {{ font-size: 14px; word-wrap: break-word; }}
+  .row-text.non-literal {{ color: #666; font-style: italic; }}
+  .row-excel {{ font-size: 13px; color: #555; margin-top: 2px;
+                font-style: italic; }}
+  .row-excel-tag {{ font-family: ui-monospace, monospace; font-size: 10px;
+                     color: #777; background: #f0f0f0;
+                     padding: 1px 5px; border-radius: 3px;
+                     margin-right: 6px; font-style: normal;
+                     vertical-align: 1px; }}
 
-  /* Per-event arc diagram (hand-rolled SVG). */
+  .tier-badge {{ font-family: ui-monospace, monospace; font-size: 10px;
+                  padding: 2px 6px; border-radius: 10px;
+                  border: 1px solid transparent; }}
+  .tier-verbatim    {{ background: #dceadc; color: #1e4a2d;
+                        border-color: #b8d6ba; }}
+  .tier-fuzzy       {{ background: #f6ecc8; color: #6a4b14;
+                        border-color: #e2d59a; }}
+  .tier-non_literal {{ background: #f3d2d2; color: #7a2626;
+                        border-color: #e4b2b2; }}
+
   .arc-view {{ margin: .5rem 0 .75rem; overflow-x: auto;
                padding-bottom: 4px; }}
   .arc-view svg.arc-svg {{ display: block; }}
 
   /* --- Annotated-text view --- */
-  .passage {{ line-height: 2.3; font-size: 15px;
-              white-space: pre-wrap; }}
+  .passage {{ line-height: 2.3; font-size: 15px; white-space: pre-wrap; }}
   .passage .ann {{ padding: 1px 3px; border-radius: 3px;
                     box-shadow: inset 0 -2px 0 rgba(0,0,0,.08);
                     cursor: help; }}
@@ -557,126 +517,222 @@ HTML_SHELL = """<!doctype html>
                             background: rgba(255,255,255,.55);
                             padding: 0 2px; border-radius: 2px;
                             vertical-align: super; }}
-  .passage .ann sup.no-deontic {{ font-family: Inter, system-ui, sans-serif;
-                                   font-style: italic; color: #555;
-                                   background: rgba(255,255,255,.8);
-                                   border: 1px dashed #999; }}
-  .event-card h3 .stmt {{ font-family: ui-monospace, monospace;
-                          font-size: 12px; }}
+  .passage .ann.hidden-role,
+  .passage .ann.hidden-tier {{ background: transparent !important;
+                                box-shadow: none; cursor: text; }}
+  .passage .ann.hidden-role sup, .passage .ann.hidden-tier sup {{ display: none; }}
+  /* Verbatim: solid underline (default inherited look). */
+  .passage .ann-tier-verbatim {{ box-shadow: inset 0 -2px 0 rgba(30, 80, 30, .55); }}
+  .passage .ann .ann-tier-verbatim {{ box-shadow: inset 0 -4px 0 rgba(30, 80, 30, .55); }}
+  /* Fuzzy: dashed underline + small ~ marker so a reviewer can skim for them. */
+  .passage .ann-tier-fuzzy {{
+    box-shadow: inset 0 -2px 0 rgba(140, 100, 20, .9);
+    background-image: linear-gradient(90deg,
+        rgba(140,100,20,.9) 50%, transparent 50%);
+    background-repeat: repeat-x;
+    background-size: 6px 2px;
+    background-position: 0 100%;
+  }}
+  .passage .fuzzy-marker {{ font-family: ui-monospace, monospace;
+                             font-size: 10px; color: #8a5a10;
+                             background: rgba(255,255,255,.7);
+                             padding: 0 2px; margin-left: 2px;
+                             border-radius: 2px; border: 1px solid rgba(140,100,20,.4);
+                             vertical-align: super; }}
 
-  /* --- Version toggle --- */
-  .toggle {{ display: inline-flex; border: 1px solid #d6d6d6;
-             border-radius: 8px; overflow: hidden; margin: .25rem 0 .5rem; }}
-  .toggle label {{ padding: 6px 14px; font-size: 13px; cursor: pointer;
-                   user-select: none; }}
-  .toggle label + label {{ border-left: 1px solid #d6d6d6; }}
-  .toggle input {{ position: absolute; opacity: 0; pointer-events: none; }}
-  .toggle label:has(input:checked) {{ background: #1b1b1b; color: #fff; }}
-  .toggle label:has(input:focus-visible) {{ outline: 2px solid #4a7bd0;
-                                            outline-offset: -2px; }}
+  .filter-bar {{ margin: .5rem 0 1rem; display: flex; gap: .75rem 1rem;
+                  flex-wrap: wrap; align-items: center;
+                  padding: .5rem .75rem; border: 1px solid #ececec;
+                  border-radius: 8px; background: #fafafa; }}
+  .filter-bar label {{ font-size: 13px; display: inline-flex;
+                        align-items: center; gap: 4px; }}
+  .filter-bar .filter-group {{ display: inline-flex; gap: .75rem;
+                                 align-items: center; }}
+  .filter-bar .sep {{ color: #ccc; }}
 </style></head><body>
 <h1>Triples — DTO-31_24</h1>
-<div class="toggle" role="radiogroup" aria-label="Version">{toggle}</div>
+<p class="muted">Each Excel row looked up literally in its statement's text.
+Binary relations (AttrDeontic / AttrObject / DeonticObject) connect every
+pair of literal spans on the same row — no deontic trigger required.</p>
+
+<h2>Match tiers per role</h2>
+<p class="muted small">verbatim = span text matches the Excel cell up to whitespace.
+fuzzy = required case / Spanish-accent folding (e.g. <code>amoniaco → amoníaco</code>).
+no match = bracketed/implicit cell, or value not present in the statement at all.</p>
+<div class="literacy">{literacy_cards}</div>
+
 <div class="legend">{legend}</div>
-{bodies}
-<script>{script}</script>
+
+<h2>Row cards <span class="muted">({n_rows_shown} of {n_rows_total} rows)</span></h2>
+<div class="filter-bar">
+  <strong>Roles:</strong>
+  <div class="filter-group">
+    <label><input type="checkbox" class="role-toggle" data-role="attribute" checked>
+      Attribute</label>
+    <label><input type="checkbox" class="role-toggle" data-role="deontic" checked>
+      Deontic</label>
+    <label><input type="checkbox" class="role-toggle" data-role="object" checked>
+      DirectObject</label>
+  </div>
+  <span class="sep">|</span>
+  <strong>Tiers:</strong>
+  <div class="filter-group">
+    <label><input type="checkbox" class="tier-toggle" data-tier="verbatim" checked>
+      verbatim</label>
+    <label><input type="checkbox" class="tier-toggle" data-tier="fuzzy" checked>
+      fuzzy</label>
+    <label><input type="checkbox" class="tier-toggle" data-tier="non_literal" checked>
+      no match</label>
+  </div>
+  <span class="sep">|</span>
+  <label><input type="checkbox" id="hide-empty" checked>
+    hide cards with 0 visible spans</label>
+</div>
+<div id="rows">{cards}</div>
+
+<h2>Full text with inline spans</h2>
+<p class="muted">From {chapter_marker} onwards; the earlier chapters are prelude and carry no tags.</p>
+<div class="passage">{passage}</div>
+
+<script>
+(function () {{
+  var ROLES = ["attribute", "deontic", "object"];
+  var TIERS = ["verbatim", "fuzzy", "non_literal"];
+  var roleBoxes = {{}}, tierBoxes = {{}};
+  ROLES.forEach(function (r) {{
+    roleBoxes[r] = document.querySelector('input.role-toggle[data-role="' + r + '"]');
+  }});
+  TIERS.forEach(function (t) {{
+    tierBoxes[t] = document.querySelector('input.tier-toggle[data-tier="' + t + '"]');
+  }});
+  var hideEmpty = document.getElementById("hide-empty");
+
+  function apply() {{
+    var roleOn = {{}}, tierOn = {{}};
+    ROLES.forEach(function (r) {{ roleOn[r] = roleBoxes[r].checked; }});
+    TIERS.forEach(function (t) {{ tierOn[t] = tierBoxes[t].checked; }});
+
+    // Hide role-specific inline annotations in the passage.
+    ROLES.forEach(function (r) {{
+      document.querySelectorAll('.passage .ann-' + r).forEach(function (el) {{
+        el.classList.toggle('hidden-role', !roleOn[r]);
+      }});
+    }});
+
+    // Tier filter applies to the passage too (verbatim / fuzzy). The
+    // "no match" tier is only ever a row-card state (no inline span to
+    // hide), so it's skipped here.
+    ["verbatim", "fuzzy"].forEach(function (t) {{
+      document.querySelectorAll('.passage .ann-tier-' + t).forEach(function (el) {{
+        el.classList.toggle('hidden-tier', !tierOn[t]);
+      }});
+    }});
+
+    document.querySelectorAll('.row-card').forEach(function (card) {{
+      var visibleSpans = 0;
+      card.querySelectorAll('.row-grid > .row').forEach(function (row) {{
+        var role = row.getAttribute('data-role');
+        var tier = (row.querySelector('.tier-badge') || {{}}).className || '';
+        var tierClass = (tier.match(/tier-(verbatim|fuzzy|non_literal)/) || [,""])[1];
+        var show = roleOn[role] && (!tierClass || tierOn[tierClass]);
+        row.style.display = show ? "" : "none";
+        if (show) visibleSpans++;
+      }});
+      card.style.display = (hideEmpty.checked && visibleSpans === 0) ? "none" : "";
+    }});
+  }}
+
+  Object.values(roleBoxes).concat(Object.values(tierBoxes))
+    .concat([hideEmpty])
+    .forEach(function (b) {{ b.addEventListener("change", apply); }});
+  apply();
+}})();
+</script>
 </body></html>
 """
 
-MODE_BODY = """<section class="mode" data-mode="{mode}"{hidden}>
-<p class="muted">{n_events} eventos · texto desde Capítulo III</p>
 
-<h2>Tarjetas por evento <span class="muted">({n_events})</span></h2>
-{cards}
-
-<h2>Texto completo con spans en línea</h2>
-<div class="passage">{passage}</div>
-</section>
-"""
-
-# Shows one .mode section at a time. A "#literal-E5"-style hash picks its
-# version; otherwise the last choice is remembered (per browser, best effort).
-TOGGLE_SCRIPT = """
-(function () {
-  var KEY = "triples-viz-mode";
-  var radios = Array.prototype.slice.call(document.querySelectorAll('input[name="mode"]'));
-  function show(mode) {
-    document.querySelectorAll(".mode").forEach(function (el) {
-      el.hidden = el.getAttribute("data-mode") !== mode;
-    });
-    try { localStorage.setItem(KEY, mode); } catch (e) {}
-  }
-  var wanted = null;
-  var m = location.hash.match(/^#(\\w+)-E\\d+$/);
-  if (m) { wanted = m[1]; } else { try { wanted = localStorage.getItem(KEY); } catch (e) {} }
-  radios.forEach(function (r) {
-    if (r.value === wanted) { r.checked = true; }
-    r.addEventListener("change", function () { if (r.checked) { show(r.value); } });
-  });
-  var checked = radios.filter(function (r) { return r.checked; })[0] || radios[0];
-  checked.checked = true;
-  show(checked.value);
-  if (m) { var target = document.getElementById(location.hash.slice(1)); if (target) { target.scrollIntoView(); } }
-})();
-"""
-
-
-def build_mode_body(mode, events, terms, tid_to_stmt, text, offset, hidden):
-    span_to_events = build_span_to_events(terms, events)
-    tids_in_events = {tid for ev in events for tids in ev["roles"].values()
-                      for tid in tids}
-    cards = build_event_cards(events, terms, span_to_events,
-                              id_prefix=f"{mode}-", tid_to_stmt=tid_to_stmt)
-    passage = render_annotated_text(text, terms, offset, span_to_events,
-                                    tid_to_stmt, tids_in_events)
-    return MODE_BODY.format(
-        mode=mode,
-        hidden=" hidden" if hidden else "",
-        n_events=len(events),
-        cards=cards,
-        passage=passage,
+def _literacy_card(role_info):
+    label = role_info["label"]
+    with_val = role_info["with_value"]
+    verb_pct = int(round(role_info["verbatim_ratio"]    * 100))
+    fuzz_pct = int(round(role_info["fuzzy_ratio"]       * 100))
+    nolit_pct = max(0, 100 - verb_pct - fuzz_pct) if with_val else 0
+    head_ratio = (f"{role_info['non_literal_ratio']:.1%} no match"
+                  if with_val else "n/a")
+    return (
+        f'<div class="lit-card">'
+        f'<div class="lit-head">'
+        f'<span class="chip" style="background:{role_color(label)}">{label}</span>'
+        f'<span class="lit-ratio">{head_ratio}</span>'
+        f'</div>'
+        f'<div class="lit-sub">'
+        f'{role_info["verbatim"]} verbatim · {role_info["fuzzy"]} fuzzy · '
+        f'{role_info["non_literal"]} no match '
+        f'(de {with_val} celdas con valor; {role_info["empty"]} vacías)'
+        f'</div>'
+        f'<span class="lit-bar">'
+        f'<span class="seg-verbatim"    style="width:{verb_pct}%"></span>'
+        f'<span class="seg-fuzzy"       style="width:{fuzz_pct}%"></span>'
+        f'<span class="seg-non_literal" style="width:{nolit_pct}%"></span>'
+        f'</span>'
+        f'<div class="lit-breakdown">'
+        f'<span class="seg"><span class="dot" style="background:#7fb286"></span>verbatim</span>'
+        f'<span class="seg"><span class="dot" style="background:#e2c477"></span>fuzzy</span>'
+        f'<span class="seg"><span class="dot" style="background:#d08b8b"></span>no match</span>'
+        f'</div>'
+        f'</div>'
     )
-
-
-def build_html(versions, text, offset):
-    """`versions` is [(mode, label, events, terms, tid_to_stmt)];
-    the first one is shown by default."""
-    legend_items = [(k, v) for k, v in TYPE_COLORS.items()
-                    if k != "DirectObject"]
-    legend = " ".join(
-        f'<span class="chip" style="background:{c}">{display_role(k)}</span>'
-        for k, c in legend_items
-    )
-    toggle = "".join(
-        f'<label><input type="radio" name="mode" value="{mode}"'
-        f'{" checked" if i == 0 else ""}> {html.escape(label)} '
-        f'<span class="muted">({len(events)})</span></label>'
-        for i, (mode, label, events, _, _) in enumerate(versions)
-    )
-    bodies = "".join(
-        build_mode_body(mode, events, terms, tid_to_stmt, text, offset,
-                        hidden=i > 0)
-        for i, (mode, _, events, terms, tid_to_stmt)
-        in enumerate(versions)
-    )
-    return HTML_SHELL.format(toggle=toggle, legend=legend, bodies=bodies,
-                             script=TOGGLE_SCRIPT)
 
 
 def main():
-    raw_text = TXT.read_text(encoding="utf-8")
+    terms, _ = parse_ann(TRIPLES_ANN_PATH)
+    with open(TRIPLES_JSONL_PATH, encoding="utf-8") as f:
+        rows = [json.loads(line) for line in f]
+    with open(LITERACY_JSON_PATH, encoding="utf-8") as f:
+        literacy = json.load(f)
+
+    tid_to_stmt, tid_to_tier = {}, {}
+    for row in rows:
+        for key, tier_key in (
+            ("attribute_tid", "attribute_tier"),
+            ("deontic_tid",   "deontic_tier"),
+            ("object_tid",    "object_tier"),
+        ):
+            if row[key]:
+                tid_to_stmt[row[key]] = row["statement_no"]
+                tid_to_tier[row[key]] = row[tier_key]
+
+    raw_text = TRIPLES_TXT_PATH.read_text(encoding="utf-8")
     text, offset = slice_from_chapter_iii(raw_text)
-    versions = []
-    for mode, label, ann_path, jsonl_path in MODES:
-        terms, events = parse_ann(ann_path)
-        versions.append((mode, label, events, terms,
-                         load_tid_to_stmt(jsonl_path)))
-        print(f"{mode}: {len(events)} events, {len(terms)} spans "
-              f"({ann_path.relative_to(ROOT.parent)})")
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(build_html(versions, text, offset), encoding="utf-8")
-    print(f"wrote {OUT.relative_to(ROOT.parent)}  "
-          f"(text starts at offset {offset})")
+
+    rows_visible = [r for r in rows if r["status"] != "all_cells_empty"]
+    cards = "".join(render_row_card(r, terms) for r in rows_visible)
+    passage = render_annotated_text(text, terms, offset, tid_to_stmt, tid_to_tier)
+
+    legend = " ".join(
+        f'<span class="chip" style="background:{c}">{label}</span>'
+        for label, c in TYPE_COLORS.items()
+    )
+    literacy_cards = "".join(
+        _literacy_card(literacy["roles"][role])
+        for role in ("attribute", "deontic", "object")
+    )
+
+    TRIPLES_VIZ_HTML_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TRIPLES_VIZ_HTML_PATH.write_text(
+        HTML_SHELL.format(
+            literacy_cards=literacy_cards,
+            legend=legend,
+            cards=cards,
+            passage=passage,
+            n_rows_shown=len(rows_visible),
+            n_rows_total=len(rows),
+            chapter_marker=CHAPTER_MARKER,
+        ),
+        encoding="utf-8",
+    )
+    print(f"-> {TRIPLES_VIZ_HTML_PATH}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,52 @@
+{
+  "roles": {
+    "attribute": {
+      "label": "Attribute",
+      "verbatim": 106,
+      "fuzzy": 10,
+      "literal": 116,
+      "non_literal": 207,
+      "empty": 42,
+      "with_value": 323,
+      "verbatim_ratio": 0.3281733746130031,
+      "fuzzy_ratio": 0.030959752321981424,
+      "non_literal_ratio": 0.6408668730650154
+    },
+    "deontic": {
+      "label": "Deontic",
+      "verbatim": 103,
+      "fuzzy": 3,
+      "literal": 106,
+      "non_literal": 217,
+      "empty": 42,
+      "with_value": 323,
+      "verbatim_ratio": 0.3188854489164087,
+      "fuzzy_ratio": 0.009287925696594427,
+      "non_literal_ratio": 0.6718266253869969
+    },
+    "object": {
+      "label": "DirectObject",
+      "verbatim": 90,
+      "fuzzy": 23,
+      "literal": 113,
+      "non_literal": 209,
+      "empty": 43,
+      "with_value": 322,
+      "verbatim_ratio": 0.2795031055900621,
+      "fuzzy_ratio": 0.07142857142857142,
+      "non_literal_ratio": 0.6490683229813664
+    }
+  },
+  "relations": {
+    "AttrDeontic": 38,
+    "AttrObject": 46,
+    "DeonticObject": 54
+  },
+  "statuses": {
+    "pair": 84,
+    "all_cells_empty": 42,
+    "single": 113,
+    "complete": 18,
+    "no_literal_span": 108
+  }
+}
